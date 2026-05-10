@@ -1,0 +1,5 @@
+{
+  "name": "Tooling Master",
+  "description": "A comprehensive tooling management system for tracking product information, sockets, change kits, pogo pins, and life time data.",
+  "requestFramePermissions": []
+}

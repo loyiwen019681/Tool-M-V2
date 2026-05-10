@@ -1,0 +1,237 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      // Role is set server-side via Firebase Admin SDK custom claims — never trusted from client
+      return isAuthenticated() && request.auth.token.get('role', '') == 'admin';
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // ===============================================================
+    // Type Validation Helpers
+    // ===============================================================
+    function checkStringLength(str, maxLen) {
+      return str == null || (str is string && str.size() <= maxLen);
+    }
+
+    function isValidNumberOrString(val, maxLen) {
+      return val == null || val is number || (val is string && val.size() <= maxLen);
+    }
+
+    function isValidBooleanStringNumber(val, maxLen) {
+      return val == null || val is bool || val is number || (val is string && val.size() <= maxLen);
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+    function isValidUser(data) {
+      return checkStringLength(data.get('username', ''), 100) &&
+             checkStringLength(data.get('email', ''), 100) &&
+             (data.get('role', '') in ['admin', 'user', '']);
+    }
+
+    function isValidProduct(data) {
+      return checkStringLength(data.get('device', ''), 200) &&
+             checkStringLength(data.get('facility', ''), 200) &&
+             checkStringLength(data.get('projectName', ''), 200) &&
+             checkStringLength(data.get('nickname', ''), 200) &&
+             checkStringLength(data.get('tester', ''), 200) &&
+             checkStringLength(data.get('handler', ''), 200) &&
+             checkStringLength(data.get('temperature', ''), 200) &&
+             checkStringLength(data.get('insertion', ''), 200) &&
+             checkStringLength(data.get('siteNumber', ''), 200) &&
+             checkStringLength(data.get('ballCountDevice', ''), 200) &&
+             checkStringLength(data.get('changeKitGroup', ''), 500) &&
+             checkStringLength(data.get('kitName1', ''), 500) &&
+             checkStringLength(data.get('kitName2', ''), 500) &&
+             checkStringLength(data.get('kitName3', ''), 500) &&
+             checkStringLength(data.get('kitName4', ''), 500) &&
+             checkStringLength(data.get('lbGroup', ''), 500) &&
+             checkStringLength(data.get('socketName1', ''), 500) &&
+             checkStringLength(data.get('socketName2', ''), 500);
+    }
+
+    function isValidSocket(data) {
+      return checkStringLength(data.get('toolsId', ''), 200) &&
+             checkStringLength(data.get('facility', ''), 200) &&
+             checkStringLength(data.get('package', ''), 200) &&
+             checkStringLength(data.get('pinBall', ''), 200) &&
+             checkStringLength(data.get('packageSize', ''), 200) &&
+             checkStringLength(data.get('project', ''), 200) &&
+             checkStringLength(data.get('status', ''), 200) &&
+             isValidNumberOrString(data.get('contactCountPin1', 0), 50) &&
+             isValidNumberOrString(data.get('lifeCountPin1', 0), 50) &&
+             isValidNumberOrString(data.get('contactLimitPin1', 0), 50) &&
+             checkStringLength(data.get('socketGroupPin1', ''), 200) &&
+             isValidBooleanStringNumber(data.get('contactCountOver70Pin1', false), 50) &&
+             checkStringLength(data.get('pogoPinPnPin1', ''), 200) &&
+             checkStringLength(data.get('socketPnPin1', ''), 200) &&
+             checkStringLength(data.get('usedFag', ''), 200) &&
+             isValidNumberOrString(data.get('contactCountPin2', 0), 50) &&
+             isValidNumberOrString(data.get('lifeCountPin2', 0), 50) &&
+             isValidNumberOrString(data.get('contactLimitPin2', 0), 50) &&
+             isValidBooleanStringNumber(data.get('contactCountOver70Pin2', false), 50) &&
+             checkStringLength(data.get('pogoPinPnPin2', ''), 200) &&
+             isValidNumberOrString(data.get('contactCountPcb', 0), 50) &&
+             isValidNumberOrString(data.get('lifeCountPcb', 0), 50) &&
+             isValidNumberOrString(data.get('contactLimitPcb', 0), 50) &&
+             isValidBooleanStringNumber(data.get('contactCountOver70Pcb', false), 50) &&
+             checkStringLength(data.get('pnPcb', ''), 200);
+    }
+
+    function isValidChangeKit(data) {
+      return checkStringLength(data.get('kind', ''), 200) &&
+             checkStringLength(data.get('facility', ''), 200) &&
+             checkStringLength(data.get('toolsId', ''), 200) &&
+             checkStringLength(data.get('packageSize', ''), 200) &&
+             checkStringLength(data.get('changeKitGroup', ''), 200) &&
+             checkStringLength(data.get('status', ''), 200) &&
+             checkStringLength(data.get('idleTime', ''), 200);
+    }
+
+    function isValidPogoPin(data) {
+      return checkStringLength(data.get('pinPn', ''), 200) &&
+             checkStringLength(data.get('facility', ''), 200) &&
+             isValidNumberOrString(data.get('qty', 0), 50);
+    }
+
+    function isValidLifeTime(data) {
+      return checkStringLength(data.get('socketGroup', ''), 200) &&
+             checkStringLength(data.get('facility', ''), 200) &&
+             checkStringLength(data.get('pogoPin1Pn', ''), 200) &&
+             isValidNumberOrString(data.get('pogoPinQty', 0), 50) &&
+             checkStringLength(data.get('lifeTime', ''), 200) &&
+             checkStringLength(data.get('loadBoardGroup', ''), 200) &&
+             checkStringLength(data.get('remark', ''), 1000);
+    }
+
+    function isValidLoadBoard(data) {
+      return checkStringLength(data.get('projectName', ''), 200) &&
+             checkStringLength(data.get('lbName', ''), 200) &&
+             checkStringLength(data.get('lbGroup', ''), 200) &&
+             checkStringLength(data.get('location', ''), 200) &&
+             checkStringLength(data.get('insertion', ''), 200) &&
+             checkStringLength(data.get('availableQty', ''), 200) &&
+             checkStringLength(data.get('remark', ''), 1000) &&
+             checkStringLength(data.get('sendBackDate', ''), 200) &&
+             checkStringLength(data.get('targetReturnDate', ''), 200);
+    }
+
+    function isValidRequiredPogoPinRow(data) {
+      return checkStringLength(data.get('partNo', ''), 200) &&
+             isValidNumberOrString(data.get('qty', 0), 50) &&
+             checkStringLength(data.get('remark', ''), 1000) &&
+             checkStringLength(data.get('facility', ''), 200) &&
+             (!('pogoPins' in data) || data.pogoPins is list);
+    }
+
+    function isValidSparePart(data) {
+      return checkStringLength(data.get('facility', ''), 200) &&
+             checkStringLength(data.get('category', ''), 200) &&
+             checkStringLength(data.get('productName', ''), 500) &&
+             checkStringLength(data.get('partsNo', ''), 200) &&
+             isValidNumberOrString(data.get('qty', 0), 50) &&
+             (data.get('status', '') in ['Wait', 'Confirming', 'Wait ETA', 'Done', '']) &&
+             checkStringLength(data.get('eta', ''), 50) &&
+             checkStringLength(data.get('remark', ''), 1000);
+    }
+
+    function isValidMaintenanceRecord(data) {
+      return checkStringLength(data.get('facility', ''), 200) &&
+             checkStringLength(data.get('lbNo', ''), 200) &&
+             (data.get('status', '') in ['Sent', 'Repairing', 'Repaired', 'Returned', 'Closed', 'Done', 'On-going', 'Pending', '']) &&
+             checkStringLength(data.get('issueDate', ''), 50) &&
+             checkStringLength(data.get('sniNo', ''), 200) &&
+             checkStringLength(data.get('lbType', ''), 200) &&
+             checkStringLength(data.get('insertion', ''), 200) &&
+             checkStringLength(data.get('vendor', ''), 200) &&
+             checkStringLength(data.get('site', ''), 200) &&
+             checkStringLength(data.get('issue', ''), 1000) &&
+             checkStringLength(data.get('repairDate', ''), 50) &&
+             checkStringLength(data.get('action', ''), 1000);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      // create/update/delete only via Admin SDK (server-side API routes) which bypasses rules
+      allow create: if isAdmin() && isValidUser(request.resource.data);
+      allow update: if isAdmin() && isValidUser(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /products/{productId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && isValidProduct(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /sockets/{socketId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && isValidSocket(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /changeKits/{kitId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && isValidChangeKit(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /pogoPins/{pinId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && isValidPogoPin(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /lifeTimes/{lifeTimeId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && isValidLifeTime(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /loadBoards/{loadBoardId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && isValidLoadBoard(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /requiredPogoPinRows/{rowId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && isValidRequiredPogoPinRow(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /maintenanceRecords/{recordId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin() && isValidMaintenanceRecord(request.resource.data);
+      allow update, delete: if isAdmin();
+    }
+
+    match /spareParts/{partId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin() && isValidSparePart(request.resource.data);
+      allow update: if isAdmin() && isValidSparePart(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && checkStringLength(request.resource.data.get('action', ''), 500);
+      // No update or delete — audit logs are immutable once written
+    }
+  }
+}

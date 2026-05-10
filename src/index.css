@@ -1,0 +1,168 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Cormorant Garamond", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-brand-primary: var(--theme-primary);
+  --color-brand-accent: var(--theme-accent);
+  --color-bg-canvas: var(--theme-bg);
+  
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+}
+
+@layer base {
+  :root {
+    /* Default Zinc Theme */
+    --theme-primary: #09090b;
+    --theme-accent: #F27D26;
+    --theme-bg: #fafafa;
+  }
+
+  .theme-ocean {
+    --theme-primary: #020617;
+    --theme-accent: #0284c7;
+    --theme-bg: #f0f9ff;
+  }
+
+  .theme-forest {
+    --theme-primary: #052e16;
+    --theme-accent: #16a34a;
+    --theme-bg: #f0fdf4;
+  }
+
+  .theme-sunset {
+    --theme-primary: #431407;
+    --theme-accent: #ea580c;
+    --theme-bg: #fff7ed;
+  }
+
+  .theme-royal {
+    --theme-primary: #2e1065;
+    --theme-accent: #7c3aed;
+    --theme-bg: #faf5ff;
+  }
+
+  .theme-rose {
+    --theme-primary: #4c0519;
+    --theme-accent: #e11d48;
+    --theme-bg: #fff1f2;
+  }
+
+  .theme-amber {
+    --theme-primary: #451a03;
+    --theme-accent: #d97706;
+    --theme-bg: #fffbeb;
+  }
+
+  .theme-cyan {
+    --theme-primary: #083344;
+    --theme-accent: #0891b2;
+    --theme-bg: #ecfeff;
+  }
+
+  .theme-slate {
+    --theme-primary: #0f172a;
+    --theme-accent: #64748b;
+    --theme-bg: #f8fafc;
+  }
+
+  /* Sidebar style variables — light (default) */
+  :root {
+    --sb-bg: #ffffff;
+    --sb-border: rgba(228,228,231,0.8);
+    --sb-text: #71717a;
+    --sb-text-active: var(--theme-primary);
+    --sb-hover: #f4f4f5;
+    --sb-active: rgba(0,0,0,0.05);
+    --sb-section-border: #f4f4f5;
+    --sb-section-bg: rgba(250,250,250,0.5);
+    --sb-title: #18181b;
+    --sb-grip: #d4d4d8;
+    --sb-logout: #ef4444;
+    --sb-logout-hover: #fef2f2;
+    --sb-icon: #a1a1aa;
+    --sb-icon-active: var(--theme-primary);
+  }
+
+  .sidebar-dark {
+    --sb-bg: #18181b;
+    --sb-border: rgba(255,255,255,0.06);
+    --sb-text: #a1a1aa;
+    --sb-text-active: #ffffff;
+    --sb-hover: rgba(255,255,255,0.06);
+    --sb-active: rgba(255,255,255,0.1);
+    --sb-section-border: rgba(255,255,255,0.06);
+    --sb-section-bg: rgba(255,255,255,0.03);
+    --sb-title: #ffffff;
+    --sb-grip: #52525b;
+    --sb-logout: #f87171;
+    --sb-logout-hover: rgba(239,68,68,0.12);
+    --sb-icon: #71717a;
+    --sb-icon-active: #ffffff;
+  }
+
+  .sidebar-colored {
+    --sb-bg: var(--theme-accent);
+    --sb-border: rgba(255,255,255,0.1);
+    --sb-text: rgba(255,255,255,0.7);
+    --sb-text-active: #ffffff;
+    --sb-hover: rgba(255,255,255,0.12);
+    --sb-active: rgba(255,255,255,0.2);
+    --sb-section-border: rgba(255,255,255,0.1);
+    --sb-section-bg: rgba(0,0,0,0.08);
+    --sb-title: #ffffff;
+    --sb-grip: rgba(255,255,255,0.4);
+    --sb-logout: rgba(255,200,200,0.9);
+    --sb-logout-hover: rgba(255,255,255,0.1);
+    --sb-icon: rgba(255,255,255,0.55);
+    --sb-icon-active: #ffffff;
+  }
+
+  body {
+    @apply bg-bg-canvas text-brand-primary antialiased selection:bg-brand-accent selection:text-white transition-colors duration-500;
+  }
+}
+
+.glass {
+  @apply bg-white/70 backdrop-blur-xl border border-white/40 shadow-sm;
+}
+
+.surface-card {
+  @apply bg-white rounded-2xl border border-zinc-200/60 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)];
+}
+
+.card-shadow {
+  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.04), 0 4px 12px -2px rgba(0, 0, 0, 0.02);
+}
+
+.data-grid-row {
+  @apply transition-colors duration-200 hover:bg-zinc-50/80 border-b border-zinc-100/80 last:border-0;
+}
+
+.sidebar-item-active {
+  @apply bg-zinc-100/80 text-brand-primary font-semibold shadow-sm ring-1 ring-zinc-200/50;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #e4e4e7; /* zinc-200 */
+  border-radius: 20px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #d4d4d8; /* zinc-300 */
+}

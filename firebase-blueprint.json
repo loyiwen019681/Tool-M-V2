@@ -1,0 +1,198 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "System users and their permissions",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "user"] }
+      },
+      "required": ["username", "email", "role"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Product information",
+      "type": "object",
+      "properties": {
+        "device": { "type": "string" },
+        "facility": { "type": "string" },
+        "projectName": { "type": "string" },
+        "nickname": { "type": "string" },
+        "tester": { "type": "string" },
+        "handler": { "type": "string" },
+        "temperature": { "type": "string" },
+        "insertion": { "type": "string" },
+        "siteNumber": { "type": "string" },
+        "ballCountDevice": { "type": "string" },
+        "changeKitGroup": { "type": "string" },
+        "kitName1": { "type": "string" },
+        "kitName2": { "type": "string" },
+        "kitName3": { "type": "string" },
+        "kitName4": { "type": "string" },
+        "lbGroup": { "type": "string" },
+        "socketName1": { "type": "string" },
+        "socketName2": { "type": "string" }
+      }
+    },
+    "Socket": {
+      "title": "Socket",
+      "description": "Socket tooling information",
+      "type": "object",
+      "properties": {
+        "toolsId": { "type": "string" },
+        "facility": { "type": "string" },
+        "package": { "type": "string" },
+        "pinBall": { "type": "string" },
+        "packageSize": { "type": "string" },
+        "project": { "type": "string" },
+        "status": { "type": "string" },
+        "contactCountPin1": { "type": "number" },
+        "lifeCountPin1": { "type": "number" },
+        "contactLimitPin1": { "type": "number" },
+        "socketGroupPin1": { "type": "string" },
+        "contactCountOver70Pin1": { "type": ["boolean", "string", "number"] },
+        "pogoPinPnPin1": { "type": "string" },
+        "socketPnPin1": { "type": "string" },
+        "usedFag": { "type": "string" },
+        "contactCountPin2": { "type": "number" },
+        "lifeCountPin2": { "type": "number" },
+        "contactLimitPin2": { "type": "number" },
+        "contactCountOver70Pin2": { "type": ["boolean", "string", "number"] },
+        "pogoPinPnPin2": { "type": "string" },
+        "contactCountPcb": { "type": "number" },
+        "lifeCountPcb": { "type": "number" },
+        "contactLimitPcb": { "type": "number" },
+        "contactCountOver70Pcb": { "type": ["boolean", "string", "number"] },
+        "pnPcb": { "type": "string" }
+      }
+    },
+    "ChangeKit": {
+      "title": "ChangeKit",
+      "description": "Change kit tooling information",
+      "type": "object",
+      "properties": {
+        "kind": { "type": "string" },
+        "facility": { "type": "string" },
+        "toolsId": { "type": "string" },
+        "packageSize": { "type": "string" },
+        "changeKitGroup": { "type": "string" },
+        "status": { "type": "string" },
+        "idleTime": { "type": "string" }
+      }
+    },
+    "PogoPin": {
+      "title": "PogoPin",
+      "description": "Pogo pin information",
+      "type": "object",
+      "properties": {
+        "pinPn": { "type": "string" },
+        "facility": { "type": "string" },
+        "qty": { "type": "number" }
+      }
+    },
+    "LifeTime": {
+      "title": "LifeTime",
+      "description": "Life time tracking",
+      "type": "object",
+      "properties": {
+        "socketGroup": { "type": "string" },
+        "facility": { "type": "string" },
+        "pogoPin1Pn": { "type": "string" },
+        "pogoPinQty": { "type": "number" },
+        "lifeTime": { "type": "string" },
+        "loadBoardGroup": { "type": "string" },
+        "remark": { "type": "string" }
+      }
+    },
+    "LoadBoard": {
+      "title": "LoadBoard",
+      "description": "Load board information",
+      "type": "object",
+      "properties": {
+        "projectName": { "type": "string" },
+        "lbName": { "type": "string" },
+        "lbGroup": { "type": "string" },
+        "location": { "type": "string" },
+        "insertion": { "type": "string" },
+        "availableQty": { "type": "string" },
+        "remark": { "type": "string" },
+        "sendBackDate": { "type": "string" },
+        "targetReturnDate": { "type": "string" }
+      }
+    },
+    "MaintenanceRecord": {
+      "title": "MaintenanceRecord",
+      "description": "Load board maintenance history",
+      "type": "object",
+      "properties": {
+        "facility": { "type": "string" },
+        "lbNo": { "type": "string" },
+        "sniNo": { "type": "string" },
+        "lbType": { "type": "string" },
+        "insertion": { "type": "string" },
+        "vendor": { "type": "string" },
+        "status": { "type": "string", "enum": ["Done", "On-going", "Pending", "Returned"] },
+        "site": { "type": "string" },
+        "issue": { "type": "string" },
+        "issueDate": { "type": "string" },
+        "repairDate": { "type": "string" },
+        "action": { "type": "string" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["facility", "lbNo", "status", "issueDate"]
+    },
+    "RequiredPogoPinRow": {
+      "title": "RequiredPogoPinRow",
+      "description": "Required pogo pin row data",
+      "type": "object",
+      "properties": {
+        "partNo": { "type": "string" },
+        "qty": { "type": ["number", "string"] },
+        "remark": { "type": "string" },
+        "pogoPins": { "type": "array" },
+        "facility": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "System users"
+    },
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Product information records"
+    },
+    "/sockets/{socketId}": {
+      "schema": "Socket",
+      "description": "Socket tooling records"
+    },
+    "/changeKits/{kitId}": {
+      "schema": "ChangeKit",
+      "description": "Change kit tooling records"
+    },
+    "/pogoPins/{pinId}": {
+      "schema": "PogoPin",
+      "description": "Pogo pin inventory"
+    },
+    "/lifeTimes/{lifeTimeId}": {
+      "schema": "LifeTime",
+      "description": "Life time tracking records"
+    },
+    "/loadBoards/{loadBoardId}": {
+      "schema": "LoadBoard",
+      "description": "Load board information records"
+    },
+    "/requiredPogoPinRows/{rowId}": {
+      "schema": "RequiredPogoPinRow",
+      "description": "Required pogo pin rows"
+    },
+    "/maintenanceRecords/{recordId}": {
+      "schema": "MaintenanceRecord",
+      "description": "Load board maintenance history records"
+    }
+  }
+}
