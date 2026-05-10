@@ -14,7 +14,8 @@
     "dataManagement": "Data Management",
     "userManagement": "User Management",
     "auditLogs": "Audit Logs",
-    "logout": "Logout"
+    "logout": "Logout",
+    "allPages": "All Features"
   },
   "common": {
     "goBack": "Go Back",

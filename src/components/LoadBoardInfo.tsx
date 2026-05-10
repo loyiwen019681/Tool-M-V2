@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import { useCollectionCRUD } from '../lib/useCollectionCRUD';
-import { Plus, Trash2, Edit2, Check, X, Search, BarChart2, List, Filter, ArrowUpDown, Download, Copy } from 'lucide-react';
+import { Plus, Trash2, Edit2, Check, X, Search, BarChart2, List, Filter, ArrowUpDown, Download, Copy, ChevronRight, Layers } from 'lucide-react';
 import { useExportExcel } from '../lib/useExportExcel';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -16,6 +16,7 @@ import { validateForm } from '../lib/validate';
 import { useToast } from '../contexts/ToastContext';
 import { useSavedViews } from '../lib/useSavedViews';
 import SavedViewsPanel from './ui/SavedViewsPanel';
+import { useIsMobile } from '../lib/useIsMobile';
 
 interface LoadBoard {
   id: string;
@@ -190,7 +191,9 @@ export default function LoadBoardInfo({
     return data;
   }, [allLoadBoards, selectedFacility]);
 
+  const isMobile = useIsMobile();
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [viewMode, setViewMode] = useState<'list' | 'stats'>('list');
@@ -496,6 +499,70 @@ export default function LoadBoardInfo({
             exit={{ opacity: 0, x: 20 }}
             className="relative overflow-hidden surface-card"
           >
+            {isMobile ? (
+              <div className="space-y-2.5">
+                {filteredLoadBoards.map((lb) => {
+                  const isExpanded = expandedCardId === lb.id;
+                  return (
+                    <div key={lb.id} className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-hidden">
+                      <button className="w-full text-left p-4" onClick={() => setExpandedCardId(isExpanded ? null : lb.id)}>
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap mb-1">
+                              <span className="text-xs font-bold uppercase tracking-wider text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded-full">{lb.facility}</span>
+                              {lb.availableQty && <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Qty: {lb.availableQty}</span>}
+                            </div>
+                            <p className="font-bold text-zinc-900 text-base truncate">{lb.lbName}</p>
+                            <p className="text-sm text-zinc-500 truncate">{lb.projectName}</p>
+                            <div className="flex items-center gap-3 mt-1 text-xs text-zinc-400">
+                              {lb.location && <span>Loc: <span className="font-medium text-zinc-600">{lb.location}</span></span>}
+                              {lb.lbGroup && <span>Group: <span className="font-medium text-zinc-600">{lb.lbGroup}</span></span>}
+                            </div>
+                          </div>
+                          <ChevronRight className={cn('h-4 w-4 text-zinc-300 shrink-0 mt-1 transition-transform', isExpanded && 'rotate-90')} />
+                        </div>
+                      </button>
+                      {isExpanded && (
+                        <div className="px-4 pb-4 border-t border-zinc-50 pt-3 space-y-2">
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+                            {[
+                              { label: 'LB Group', value: lb.lbGroup },
+                              { label: 'Location', value: lb.location },
+                              { label: 'Insertion', value: lb.insertion },
+                              { label: 'Available Qty', value: lb.availableQty },
+                              { label: 'Send Back', value: lb.sendBackDate },
+                              { label: 'Target Return', value: lb.targetReturnDate },
+                              { label: 'Remark', value: lb.remark },
+                            ].filter(f => f.value).map(f => (
+                              <div key={f.label}>
+                                <p className="text-zinc-400 text-[10px] uppercase tracking-wide">{f.label}</p>
+                                <p className="font-medium text-zinc-700 truncate">{f.value}</p>
+                              </div>
+                            ))}
+                          </div>
+                          {isAdmin && (
+                            <div className="flex gap-2 pt-2 border-t border-zinc-50">
+                              <button onClick={() => setEditingId(lb.id)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-zinc-100 text-zinc-700 text-xs font-bold hover:bg-zinc-200 transition-colors">
+                                <Edit2 className="h-3.5 w-3.5" />Edit
+                              </button>
+                              <button onClick={() => setModal({ isOpen: true, id: lb.id })} className="flex items-center justify-center p-2 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+                {filteredLoadBoards.length === 0 && (
+                  <div className="text-center py-16 text-zinc-400">
+                    <Layers className="h-10 w-10 mx-auto mb-3 opacity-30" />
+                    <p className="text-sm font-medium">No results found</p>
+                  </div>
+                )}
+              </div>
+            ) : (
             <DoubleScrollbar>
               <table className="w-full text-left text-sm border-collapse">
                 <thead>
@@ -590,9 +657,10 @@ export default function LoadBoardInfo({
                 </tbody>
               </table>
             </DoubleScrollbar>
+            )}
           </motion.div>
         ) : (
-          <motion.div 
+          <motion.div
             key="stats"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -760,7 +828,7 @@ export default function LoadBoardInfo({
       <AnimatePresence>
         {saveModal.isOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/60 p-4 backdrop-blur-sm">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -798,6 +866,12 @@ export default function LoadBoardInfo({
           </div>
         )}
       </AnimatePresence>
+
+      {isMobile && isAdmin && viewMode === 'list' && (
+        <button onClick={() => setEditingId('new')} className="fixed bottom-20 right-4 z-30 h-14 w-14 rounded-full bg-brand-primary text-white shadow-xl shadow-brand-primary/30 flex items-center justify-center active:scale-95 transition-transform">
+          <Plus className="h-6 w-6" />
+        </button>
+      )}
     </div>
   );
 }

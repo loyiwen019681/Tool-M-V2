@@ -247,28 +247,12 @@ export default function Dashboard({ user, role, selectedFacility, onBackToFacili
           />
         </Suspense>
       </ErrorBoundary>
-      {/* Mobile Sidebar Overlay */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="fixed inset-0 z-40 bg-zinc-900/50 backdrop-blur-sm md:hidden"
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Sidebar */}
+      {/* Sidebar — desktop only */}
       <motion.aside
         initial={false}
         animate={{ width: isSidebarOpen ? 280 : 80 }}
         style={{ backgroundColor: 'var(--sb-bg)', borderColor: 'var(--sb-border)' }}
-        className={cn(
-          "fixed inset-y-0 left-0 z-50 flex flex-col border-r transition-all duration-300 md:relative md:translate-x-0",
-          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        )}
+        className="hidden md:flex fixed inset-y-0 left-0 z-50 flex-col border-r transition-all duration-300 md:relative"
       >
         <div className="flex h-20 items-center justify-between px-6">
           {isSidebarOpen ? (
@@ -384,50 +368,42 @@ export default function Dashboard({ user, role, selectedFacility, onBackToFacili
       </motion.aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto relative w-full">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden relative w-full">
         {/* Top Header */}
-        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-xl border-b border-zinc-200 h-20 px-4 md:px-8 flex items-center justify-between">
+        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-xl border-b border-zinc-200 h-14 md:h-20 px-3 md:px-8 flex items-center justify-between">
           <div className="flex items-center gap-2 md:gap-4">
-            <button 
+            <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               className="p-2 hover:bg-zinc-100 rounded-lg transition-colors hidden md:block"
             >
               <Layers className="h-5 w-5 text-zinc-500" />
             </button>
-            <button 
-              onClick={() => setIsMobileMenuOpen(true)}
-              className="p-2 hover:bg-zinc-100 rounded-lg transition-colors md:hidden"
-            >
-              <Menu className="h-5 w-5 text-zinc-500" />
-            </button>
             <div className="h-6 w-px bg-zinc-200 hidden md:block" />
+            {/* Back button (desktop only — mobile uses bottom nav) */}
+            {tabHistory.length > 0 && (
+              <button
+                onClick={() => {
+                  const newHistory = [...tabHistory];
+                  const prevTab = newHistory.pop();
+                  if (prevTab) { setActiveTab(prevTab); setTabHistory(newHistory); }
+                }}
+                className="flex items-center justify-center p-1.5 hover:bg-zinc-100 rounded-lg transition-colors text-zinc-500 hover:text-zinc-900"
+                title={t('common.goBack')}
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </button>
+            )}
             <div className="flex flex-col">
-              <h1 className="flex items-center gap-2 font-serif text-xl md:text-2xl italic tracking-tight text-zinc-900 truncate max-w-[120px] md:max-w-none">
-                {tabHistory.length > 0 && (
-                  <button 
-                    onClick={() => {
-                      const newHistory = [...tabHistory];
-                      const prevTab = newHistory.pop();
-                      if (prevTab) {
-                        setActiveTab(prevTab);
-                        setTabHistory(newHistory);
-                      }
-                    }}
-                    className="flex items-center justify-center p-1 hover:bg-zinc-100 rounded-lg transition-colors text-zinc-500 hover:text-zinc-900"
-                    title={t('common.goBack')}
-                  >
-                    <ArrowLeft className="h-5 w-5" />
-                  </button>
-                )}
+              <h1 className="font-serif text-base md:text-2xl italic tracking-tight text-zinc-900 truncate max-w-[150px] md:max-w-none">
                 {menuItems.find(i => i.id === activeTab)?.label}
               </h1>
             </div>
-            <div className="h-6 w-px bg-zinc-200 mx-1 md:mx-2" />
-            <div className="flex items-center gap-2">
+            <div className="h-6 w-px bg-zinc-200 mx-1 md:mx-2 hidden sm:block" />
+            <div className="items-center gap-2 hidden sm:flex">
               <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100 border border-zinc-200/80 px-2 md:px-3 py-1 md:py-1.5 rounded-full truncate max-w-[80px] md:max-w-none">
                 <span className="hidden md:inline">{t('common.facility')}: </span>{selectedFacility}
               </span>
-              <button 
+              <button
                 onClick={onBackToFacility}
                 className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-zinc-500 hover:text-zinc-900 transition-colors px-2 md:px-3 py-1 md:py-1.5 bg-white border border-zinc-200 rounded-full shadow-sm hover:bg-zinc-50"
               >
@@ -436,8 +412,16 @@ export default function Dashboard({ user, role, selectedFacility, onBackToFacili
             </div>
           </div>
 
-          <div className="flex items-center gap-4 md:gap-6">
-            <LanguageSwitcher className="hidden md:block" />  {/* desktop header */}
+          <div className="flex items-center gap-2 md:gap-6">
+            <LanguageSwitcher className="hidden md:block" />
+            {/* Mobile search button */}
+            <button
+              onClick={() => setIsPaletteOpen(true)}
+              className="p-2 hover:bg-zinc-100 rounded-lg transition-colors md:hidden"
+            >
+              <SearchIcon className="h-5 w-5 text-zinc-500" />
+            </button>
+            {/* Desktop search */}
             <button
               onClick={() => setIsPaletteOpen(true)}
               className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors text-xs"
@@ -448,8 +432,8 @@ export default function Dashboard({ user, role, selectedFacility, onBackToFacili
               <kbd className="hidden lg:inline text-[10px] border border-zinc-300 rounded px-1">Ctrl+K</kbd>
             </button>
             <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-zinc-200 ring-2 ring-white shadow-sm overflow-hidden shrink-0">
-              <img 
-                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} 
+              <img
+                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
                 alt="Avatar"
                 referrerPolicy="no-referrer"
                 className="h-full w-full object-cover"
@@ -458,15 +442,129 @@ export default function Dashboard({ user, role, selectedFacility, onBackToFacili
           </div>
         </header>
 
-        <div className="p-4 md:p-8">
+        {/* ── Mobile Bottom Nav ─────────────────────────────────────── */}
+        {(() => {
+          // Show up to 4 primary tabs + "More" in the bottom nav
+          const primaryItems = menuItems.slice(0, 4);
+          const hasMore = menuItems.length > 4;
+          return (
+            <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-zinc-200 md:hidden flex items-center h-16 px-1 safe-area-inset-bottom">
+              {primaryItems.map(item => {
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => { setActiveTab(item.id as Tab); setTabHistory([]); }}
+                    className={cn(
+                      'flex-1 flex flex-col items-center justify-center gap-0.5 py-2 rounded-xl transition-colors mx-0.5',
+                      isActive ? 'text-brand-primary' : 'text-zinc-400'
+                    )}
+                  >
+                    <item.icon className={cn('h-5 w-5 transition-transform', isActive && 'scale-110')} />
+                    <span className="text-[9px] font-bold leading-none truncate w-full text-center px-1">{item.label}</span>
+                  </button>
+                );
+              })}
+              {hasMore && (
+                <button
+                  onClick={() => setIsMobileMenuOpen(true)}
+                  className={cn(
+                    'flex-1 flex flex-col items-center justify-center gap-0.5 py-2 rounded-xl transition-colors mx-0.5',
+                    !primaryItems.some(i => i.id === activeTab) ? 'text-brand-primary' : 'text-zinc-400'
+                  )}
+                >
+                  <Menu className="h-5 w-5" />
+                  <span className="text-[9px] font-bold leading-none">More</span>
+                </button>
+              )}
+            </nav>
+          );
+        })()}
+
+        {/* ── Mobile "More" full-menu sheet ─────────────────────────── */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm md:hidden"
+              />
+              <motion.div
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                exit={{ y: '100%' }}
+                transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+                className="fixed bottom-16 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-2xl max-h-[75vh] flex flex-col md:hidden"
+              >
+                <div className="flex justify-center pt-3 pb-1 shrink-0">
+                  <div className="h-1 w-10 bg-zinc-300 rounded-full" />
+                </div>
+                <div className="flex items-center justify-between px-5 py-3 border-b border-zinc-100 shrink-0">
+                  <span className="font-bold text-zinc-900 text-sm">{t('sidebar.allPages')}</span>
+                  <div className="flex items-center gap-3">
+                    <LanguageSwitcher />
+                    <button onClick={() => setIsMobileMenuOpen(false)} className="p-1.5 hover:bg-zinc-100 rounded-lg transition-colors">
+                      <X className="h-5 w-5 text-zinc-500" />
+                    </button>
+                  </div>
+                </div>
+                {/* User info */}
+                <div className="flex items-center gap-3 px-5 py-3 border-b border-zinc-100 shrink-0">
+                  <div className="h-9 w-9 rounded-full bg-zinc-200 ring-2 ring-white shadow-sm overflow-hidden shrink-0">
+                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} alt="Avatar" className="h-full w-full object-cover" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-zinc-900">{user.email?.split('@')[0]}</p>
+                    <p className="text-[10px] uppercase tracking-widest font-bold text-zinc-400">{role || 'User'}</p>
+                  </div>
+                  <div className="ml-auto flex items-center gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100 border border-zinc-200/80 px-2 py-1 rounded-full">{selectedFacility}</span>
+                    <button onClick={onBackToFacility} className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 px-2 py-1 bg-white border border-zinc-200 rounded-full">
+                      {t('common.change')}
+                    </button>
+                  </div>
+                </div>
+                <div className="overflow-y-auto flex-1 p-3 grid grid-cols-2 gap-2">
+                  {menuItems.map(item => {
+                    const isActive = activeTab === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => { setActiveTab(item.id as Tab); setTabHistory([]); setIsMobileMenuOpen(false); }}
+                        className={cn(
+                          'flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors text-left',
+                          isActive ? 'bg-brand-primary text-white' : 'bg-zinc-50 text-zinc-700 hover:bg-zinc-100'
+                        )}
+                      >
+                        <item.icon className="h-4 w-4 shrink-0" />
+                        <span className="truncate">{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="p-3 border-t border-zinc-100 shrink-0">
+                  <button onClick={handleLogout} className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium text-red-500 bg-red-50 hover:bg-red-100 transition-colors">
+                    <LogOut className="h-4 w-4" />
+                    {t('sidebar.logout')}
+                  </button>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
+        <div className="p-3 md:p-8 pb-20 md:pb-8">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.2 }}
-              className="rounded-2xl md:rounded-3xl bg-white p-4 md:p-10 card-shadow ring-1 ring-black/5 min-h-[calc(100vh-8rem)] md:min-h-[calc(100vh-10rem)]"
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.15 }}
+              className="rounded-2xl md:rounded-3xl bg-white p-3 md:p-10 card-shadow ring-1 ring-black/5 min-h-[calc(100vh-8rem)] md:min-h-[calc(100vh-10rem)]"
             >
               <ErrorBoundary>
               <Suspense fallback={

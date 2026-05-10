@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { db } from '../firebase';
 import { deleteDoc, doc, updateDoc, collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
-import { Trash2, Edit2, Check, X, Search, List, Filter, ArrowUpDown, History, Loader2, Plus, Download } from 'lucide-react';
+import { Trash2, Edit2, Check, X, Search, List, Filter, ArrowUpDown, History, Loader2, Plus, Download, ChevronRight } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import { DoubleScrollbar } from './ui/DoubleScrollbar';
@@ -12,6 +12,7 @@ import { useData } from '../contexts/DataContext';
 import { useDebounce } from '../lib/useDebounce';
 import { useFacilityFilter } from '../lib/useFacilityFilter';
 import { useToast } from '../contexts/ToastContext';
+import { useIsMobile } from '../lib/useIsMobile';
 
 interface MaintenanceRecord {
   id: string;
@@ -198,6 +199,9 @@ export default function MaintenanceHistory({
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>({ key: 'issueDate', direction: 'desc' });
 
   const [deleteModal, setDeleteModal] = useState<{isOpen: boolean, id: string | null}>({ isOpen: false, id: null });
+
+  const isMobile = useIsMobile();
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
 
   const handleUpdate = useCallback(async (id: string, data: Partial<MaintenanceRecord>) => {
     // OPTIMIZATION: Optimistically close the edit mode for instant UI response
@@ -405,65 +409,140 @@ export default function MaintenanceHistory({
         </div>
       </div>
 
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="relative overflow-hidden surface-card"
-      >
-        <DoubleScrollbar>
-          <table className="w-full text-left text-sm border-collapse">
-            <thead>
-              <tr className="bg-zinc-50/50">
-                {columns.map((col, i) => (
-                  <th 
-                    key={col.key} 
-                    className={cn("px-0 py-0 border-b border-zinc-100", i === 0 && "sticky left-0 bg-zinc-50/50 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]")}
-                  >
-                    <div 
-                      className="px-6 py-4 flex items-center cursor-pointer hover:bg-zinc-100/50 transition-colors" 
-                      onClick={() => {
-                        const direction = sortConfig?.key === col.key && sortConfig.direction === 'asc' ? 'desc' : 'asc';
-                        setSortConfig({ key: col.key, direction });
-                      }}
-                    >
-                      <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 font-sans whitespace-nowrap">
-                        {col.label}
-                      </span>
-                      <ArrowUpDown className={cn("ml-2 h-3 w-3 shrink-0", sortConfig?.key === col.key ? "text-brand-primary opacity-100" : "text-zinc-400 opacity-50")} />
+      {isMobile ? (
+        <div className="space-y-2.5">
+          {filteredRecords.map((record) => {
+            const isExpanded = expandedCardId === record.id;
+            const statusColors: Record<string, string> = {
+              'Done': 'bg-emerald-50 text-emerald-600',
+              'On-going': 'bg-amber-50 text-amber-600',
+              'Returned': 'bg-blue-50 text-blue-600',
+              'Pending': 'bg-zinc-100 text-zinc-500',
+            };
+            const statusClass = record.status ? (statusColors[record.status] || 'bg-zinc-100 text-zinc-500') : 'bg-zinc-100 text-zinc-500';
+            return (
+              <div key={record.id} className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-hidden">
+                <button className="w-full text-left p-4" onClick={() => setExpandedCardId(isExpanded ? null : record.id)}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        {record.status && <span className={cn('text-xs font-bold px-2 py-0.5 rounded-full', statusClass)}>{record.status}</span>}
+                        {record.lbType && <span className="text-xs text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded-full">{record.lbType}</span>}
+                      </div>
+                      <button
+                        className="font-bold text-brand-primary text-base hover:underline"
+                        onClick={(e) => { e.stopPropagation(); if (record.lbNo) onLBClick?.(record.lbNo); }}
+                      >
+                        {record.lbNo}
+                      </button>
+                      <p className="text-sm text-zinc-500 truncate">{record.issue}</p>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-zinc-400">
+                        {record.issueDate && <span>{record.issueDate}</span>}
+                        {record.site && <span>Site: <span className="font-medium text-zinc-600">{record.site}</span></span>}
+                      </div>
                     </div>
-                  </th>
-                ))}
-                {isAdmin && <th className="px-6 py-4 border-b border-zinc-100 text-right">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 font-sans">Actions</span>
-                </th>}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-50">
-              {filteredRecords.slice(0, displayCount).map((record, idx) => (
-                <MaintenanceRow
-                  key={record.id}
-                  record={record}
-                  idx={idx}
-                  columns={columns}
-                  isAdmin={isAdmin}
-                  editingId={editingId}
-                  setEditingId={setEditingId}
-                  handleUpdate={handleUpdate}
-                  setDeleteModal={setDeleteModal}
-                  onLBClick={onLBClick}
-                />
-              ))}
-              {filteredRecords.length === 0 && (
-                <tr>
-                  <td colSpan={columns.length + (isAdmin ? 1 : 0)} className="px-6 py-12 text-center text-zinc-400 italic">
-                    No maintenance records found.
-                  </td>
+                    <ChevronRight className={cn('h-4 w-4 text-zinc-300 shrink-0 mt-1 transition-transform', isExpanded && 'rotate-90')} />
+                  </div>
+                </button>
+                {isExpanded && (
+                  <div className="px-4 pb-4 border-t border-zinc-50 pt-3 space-y-2">
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+                      {[
+                        { label: 'SNI No.', value: record.sniNo },
+                        { label: 'Vendor', value: record.vendor },
+                        { label: 'Insertion', value: record.insertion },
+                        { label: 'Action', value: record.action },
+                        { label: 'Repair Date', value: record.repairDate },
+                        { label: 'Created By', value: record.createdBy },
+                      ].filter(f => f.value).map(f => (
+                        <div key={f.label}>
+                          <p className="text-zinc-400 text-[10px] uppercase tracking-wide">{f.label}</p>
+                          <p className="font-medium text-zinc-700 truncate">{f.value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          {filteredRecords.length === 0 && (
+            <div className="text-center py-16 text-zinc-400">
+              <History className="h-10 w-10 mx-auto mb-3 opacity-30" />
+              <p className="text-sm font-medium">No results found</p>
+            </div>
+          )}
+        </div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="relative overflow-hidden surface-card"
+        >
+          <DoubleScrollbar>
+            <table className="w-full text-left text-sm border-collapse">
+              <thead>
+                <tr className="bg-zinc-50/50">
+                  {columns.map((col, i) => (
+                    <th
+                      key={col.key}
+                      className={cn("px-0 py-0 border-b border-zinc-100", i === 0 && "sticky left-0 bg-zinc-50/50 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]")}
+                    >
+                      <div
+                        className="px-6 py-4 flex items-center cursor-pointer hover:bg-zinc-100/50 transition-colors"
+                        onClick={() => {
+                          const direction = sortConfig?.key === col.key && sortConfig.direction === 'asc' ? 'desc' : 'asc';
+                          setSortConfig({ key: col.key, direction });
+                        }}
+                      >
+                        <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 font-sans whitespace-nowrap">
+                          {col.label}
+                        </span>
+                        <ArrowUpDown className={cn("ml-2 h-3 w-3 shrink-0", sortConfig?.key === col.key ? "text-brand-primary opacity-100" : "text-zinc-400 opacity-50")} />
+                      </div>
+                    </th>
+                  ))}
+                  {isAdmin && <th className="px-6 py-4 border-b border-zinc-100 text-right">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 font-sans">Actions</span>
+                  </th>}
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </DoubleScrollbar>
-      </motion.div>
+              </thead>
+              <tbody className="divide-y divide-zinc-50">
+                {filteredRecords.slice(0, displayCount).map((record, idx) => (
+                  <MaintenanceRow
+                    key={record.id}
+                    record={record}
+                    idx={idx}
+                    columns={columns}
+                    isAdmin={isAdmin}
+                    editingId={editingId}
+                    setEditingId={setEditingId}
+                    handleUpdate={handleUpdate}
+                    setDeleteModal={setDeleteModal}
+                    onLBClick={onLBClick}
+                  />
+                ))}
+                {filteredRecords.length === 0 && (
+                  <tr>
+                    <td colSpan={columns.length + (isAdmin ? 1 : 0)} className="px-6 py-12 text-center text-zinc-400 italic">
+                      No maintenance records found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </DoubleScrollbar>
+        </motion.div>
+      )}
+
+      {isMobile && (
+        <button
+          onClick={onAddMaintenanceRecord}
+          className="fixed bottom-20 right-4 z-30 h-14 w-14 rounded-full bg-brand-primary text-white shadow-xl shadow-brand-primary/30 flex items-center justify-center active:scale-95 transition-transform"
+        >
+          <Plus className="h-6 w-6" />
+        </button>
+      )}
 
       {/* Delete Modal */}
       <AnimatePresence>

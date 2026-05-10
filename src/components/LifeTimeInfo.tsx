@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCollectionCRUD } from '../lib/useCollectionCRUD';
-import { Plus, Trash2, Edit2, Search, Check, X, Filter, ArrowUpDown, Download, Copy } from 'lucide-react';
+import { Plus, Trash2, Edit2, Search, Check, X, Filter, ArrowUpDown, Download, Copy, ChevronRight, Clock } from 'lucide-react';
 import { useExportExcel } from '../lib/useExportExcel';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -16,6 +16,7 @@ import { validateForm } from '../lib/validate';
 import { useToast } from '../contexts/ToastContext';
 import { useSavedViews } from '../lib/useSavedViews';
 import SavedViewsPanel from './ui/SavedViewsPanel';
+import { useIsMobile } from '../lib/useIsMobile';
 
 interface LifeTime {
   id: string;
@@ -173,7 +174,9 @@ export default function LifeTimeInfo({ isAdmin, selectedFacility }: { isAdmin: b
     return data;
   }, [allRecords, selectedFacility]);
 
+  const isMobile = useIsMobile();
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
   const [newRecord, setNewRecord] = useState<Partial<LifeTime>>({});
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -400,11 +403,72 @@ export default function LifeTimeInfo({ isAdmin, selectedFacility }: { isAdmin: b
         </div>
       </div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="relative overflow-hidden surface-card"
       >
+        {isMobile ? (
+          <div className="space-y-2.5">
+            {filteredRecords.map((record) => {
+              const isExpanded = expandedCardId === record.id;
+              return (
+                <div key={record.id} className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-hidden">
+                  <button className="w-full text-left p-4" onClick={() => setExpandedCardId(isExpanded ? null : record.id)}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <span className="text-xs font-bold uppercase tracking-wider text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded-full">{record.facility}</span>
+                          {record.lifeTime && <span className="text-xs font-bold text-zinc-600 bg-zinc-100 px-2 py-0.5 rounded-full">Life: {record.lifeTime}</span>}
+                        </div>
+                        <p className="font-bold text-zinc-900 text-base truncate">{record.socketGroup}</p>
+                        <p className="text-sm text-zinc-500 truncate">{record.loadBoardGroup}</p>
+                        <div className="flex items-center gap-3 mt-1 text-xs text-zinc-400">
+                          {record.pogoPin1Pn && <span>Pin1: <span className="font-medium text-zinc-600">{record.pogoPin1Pn}</span></span>}
+                        </div>
+                      </div>
+                      <ChevronRight className={cn('h-4 w-4 text-zinc-300 shrink-0 mt-1 transition-transform', isExpanded && 'rotate-90')} />
+                    </div>
+                  </button>
+                  {isExpanded && (
+                    <div className="px-4 pb-4 border-t border-zinc-50 pt-3 space-y-2">
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+                        {[
+                          { label: 'LB Group', value: record.loadBoardGroup },
+                          { label: 'Life Time', value: String(record.lifeTime ?? '') },
+                          { label: 'Pin1 PN', value: record.pogoPin1Pn },
+                          { label: 'Pin1 Qty', value: String(record.pogoPinQty ?? '') },
+                          { label: 'Remark', value: record.remark },
+                        ].filter(f => f.value && f.value !== 'undefined').map(f => (
+                          <div key={f.label}>
+                            <p className="text-zinc-400 text-[10px] uppercase tracking-wide">{f.label}</p>
+                            <p className="font-medium text-zinc-700 truncate">{f.value}</p>
+                          </div>
+                        ))}
+                      </div>
+                      {isAdmin && (
+                        <div className="flex gap-2 pt-2 border-t border-zinc-50">
+                          <button onClick={() => setEditingId(record.id)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-zinc-100 text-zinc-700 text-xs font-bold hover:bg-zinc-200 transition-colors">
+                            <Edit2 className="h-3.5 w-3.5" />Edit
+                          </button>
+                          <button onClick={() => setModal({ isOpen: true, id: record.id })} className="flex items-center justify-center p-2 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            {filteredRecords.length === 0 && (
+              <div className="text-center py-16 text-zinc-400">
+                <Clock className="h-10 w-10 mx-auto mb-3 opacity-30" />
+                <p className="text-sm font-medium">No results found</p>
+              </div>
+            )}
+          </div>
+        ) : (
         <DoubleScrollbar>
           <table className="w-full text-left text-sm border-collapse">
             <thead>
@@ -500,6 +564,7 @@ export default function LifeTimeInfo({ isAdmin, selectedFacility }: { isAdmin: b
             </tbody>
           </table>
         </DoubleScrollbar>
+        )}
       </motion.div>
 
       <BulkActionBar count={selectedIds.size} onDelete={handleBulkDelete} onClear={clearSelection} />
@@ -546,7 +611,7 @@ export default function LifeTimeInfo({ isAdmin, selectedFacility }: { isAdmin: b
       <AnimatePresence>
         {saveModal.isOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/60 p-4 backdrop-blur-sm">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -584,6 +649,12 @@ export default function LifeTimeInfo({ isAdmin, selectedFacility }: { isAdmin: b
           </div>
         )}
       </AnimatePresence>
+
+      {isMobile && isAdmin && (
+        <button onClick={() => setEditingId('new')} className="fixed bottom-20 right-4 z-30 h-14 w-14 rounded-full bg-brand-primary text-white shadow-xl shadow-brand-primary/30 flex items-center justify-center active:scale-95 transition-transform">
+          <Plus className="h-6 w-6" />
+        </button>
+      )}
     </div>
   );
 }

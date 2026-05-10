@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCollectionCRUD } from '../lib/useCollectionCRUD';
-import { Plus, Trash2, Edit2, Check, X, Search, MoreHorizontal, BarChart2, List, Filter, ArrowUpDown, Download, Copy } from 'lucide-react';
+import { Plus, Trash2, Edit2, Check, X, Search, MoreHorizontal, BarChart2, List, Filter, ArrowUpDown, Download, Copy, ChevronRight, Cpu } from 'lucide-react';
 import { useExportExcel } from '../lib/useExportExcel';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -16,6 +16,8 @@ import { validateForm } from '../lib/validate';
 import { useToast } from '../contexts/ToastContext';
 import { useSavedViews } from '../lib/useSavedViews';
 import SavedViewsPanel from './ui/SavedViewsPanel';
+import { useIsMobile } from '../lib/useIsMobile';
+import { BottomSheet } from './ui/BottomSheet';
 
 interface Socket {
   id: string;
@@ -199,6 +201,8 @@ export default function SocketInfo({ isAdmin, selectedFacility }: { isAdmin: boo
     return data;
   }, [allSockets, selectedFacility]);
 
+  const isMobile = useIsMobile();
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newSocket, setNewSocket] = useState<Partial<Socket>>({});
   const [viewMode, setViewMode] = useState<'list' | 'stats'>('list');
@@ -507,111 +511,190 @@ export default function SocketInfo({ isAdmin, selectedFacility }: { isAdmin: boo
 
       <AnimatePresence mode="wait">
         {viewMode === 'list' ? (
-          <motion.div 
+          <motion.div
             key="list"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
-            className="relative overflow-hidden surface-card"
           >
-            <DoubleScrollbar>
-              <table className="w-full text-left text-sm border-collapse">
-            <thead>
-              <tr className="bg-zinc-50/50">
-                {isAdmin && (
-                  <th className="px-4 py-4 border-b border-zinc-100 w-10">
-                    <input
-                      type="checkbox"
-                      className="rounded border-zinc-300 text-brand-primary focus:ring-brand-primary cursor-pointer"
-                      checked={isAllSelected(filteredSockets.slice(0, displayCount).map(x => x.id))}
-                      onChange={() => toggleAll(filteredSockets.slice(0, displayCount).map(x => x.id))}
-                    />
-                  </th>
-                )}
-                {columns.map((col, i) => (
-                  <th
-                    key={col.key}
-                    className={cn("px-0 py-0 border-b border-zinc-100", i === 0 && "sticky left-0 bg-zinc-50/50 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]")}
-                  >
-                    <div className="px-6 py-4 flex items-center cursor-pointer hover:bg-zinc-100/50 transition-colors" onClick={() => handleSort(col.key)}>
-                      <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 font-sans whitespace-nowrap">
-                        {col.label}
-                      </span>
-                      <ArrowUpDown className={cn("ml-2 h-3 w-3 shrink-0", sortConfig?.key === col.key ? "text-brand-primary opacity-100" : "text-zinc-400 opacity-50")} />
+            {isMobile ? (
+              <div className="space-y-2.5">
+                {filteredSockets.map((socket) => {
+                  const isExpanded = expandedCardId === socket.id;
+                  const pin1Progress = socket.lifeCountPin1 && socket.contactLimitPin1
+                    ? Math.min(100, Math.round((Number(socket.lifeCountPin1) / Number(socket.contactLimitPin1)) * 100))
+                    : null;
+                  return (
+                    <div key={socket.id} className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-hidden">
+                      <button className="w-full text-left p-4" onClick={() => setExpandedCardId(isExpanded ? null : socket.id)}>
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap mb-1">
+                              <span className="text-xs font-bold uppercase tracking-wider text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded-full">{socket.facility}</span>
+                              {socket.status && <span className={cn('text-xs font-bold px-2 py-0.5 rounded-full', socket.status === 'Active' ? 'bg-emerald-50 text-emerald-600' : 'bg-zinc-100 text-zinc-500')}>{socket.status}</span>}
+                            </div>
+                            <p className="font-bold text-zinc-900 text-base truncate">{socket.toolsId}</p>
+                            <p className="text-sm text-zinc-500 truncate">{[socket.package, socket.location].filter(Boolean).join(' · ')}</p>
+                            {pin1Progress !== null && (
+                              <div className="mt-2">
+                                <div className="flex justify-between text-[10px] text-zinc-400 mb-0.5">
+                                  <span>Pin1 Life</span>
+                                  <span>{socket.lifeCountPin1} / {socket.contactLimitPin1}</span>
+                                </div>
+                                <div className="h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+                                  <div className={cn('h-full rounded-full transition-all', pin1Progress > 80 ? 'bg-red-400' : pin1Progress > 60 ? 'bg-amber-400' : 'bg-emerald-400')} style={{ width: `${pin1Progress}%` }} />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          <ChevronRight className={cn('h-4 w-4 text-zinc-300 shrink-0 mt-1 transition-transform', isExpanded && 'rotate-90')} />
+                        </div>
+                      </button>
+                      {isExpanded && (
+                        <div className="px-4 pb-4 border-t border-zinc-50 pt-3 space-y-2">
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+                            {[
+                              { label: 'Tools ID', value: socket.toolsId },
+                              { label: 'Package', value: socket.package },
+                              { label: 'Pin Ball', value: String(socket.pinBall ?? '') },
+                              { label: 'Location', value: socket.location },
+                              { label: 'Contact Pin1', value: String(socket.contactCountPin1 ?? '') },
+                              { label: 'Life Pin1', value: String(socket.lifeCountPin1 ?? '') },
+                              { label: 'Limit Pin1', value: String(socket.contactLimitPin1 ?? '') },
+                              { label: 'Pogo Pin1', value: socket.pogoPinPnPin1 },
+                              { label: 'Socket PN', value: socket.socketPnPin1 },
+                              { label: 'Used Flag', value: socket.usedFlag },
+                            ].filter(f => f.value && f.value !== 'undefined').map(f => (
+                              <div key={f.label}>
+                                <p className="text-zinc-400 text-[10px] uppercase tracking-wide">{f.label}</p>
+                                <p className="font-medium text-zinc-700 truncate">{f.value}</p>
+                              </div>
+                            ))}
+                          </div>
+                          {isAdmin && (
+                            <div className="flex gap-2 pt-2 border-t border-zinc-50">
+                              <button onClick={() => setEditingId(socket.id)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-zinc-100 text-zinc-700 text-xs font-bold hover:bg-zinc-200 transition-colors">
+                                <Edit2 className="h-3.5 w-3.5" />Edit
+                              </button>
+                              <button onClick={() => setModal({ isOpen: true, id: socket.id })} className="flex items-center justify-center p-2 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                  </th>
-                ))}
-                {isAdmin && <th className="px-6 py-4 border-b border-zinc-100 text-right">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 font-sans">{t('sharedTable.actions')}</span>
-                </th>}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-50">
-              <AnimatePresence mode="popLayout">
-                {editingId === 'new' && (
-                  <motion.tr
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    className="bg-zinc-50/30"
-                  >
-                    {isAdmin && <td className="px-4 py-3 w-10" />}
-                    {columns.map(col => (
-                      <td key={col.key} className="px-6 py-3">
-                        <input
-                          type="text"
-                          autoFocus={col.key === 'facility'}
-                          className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs focus:ring-2 focus:ring-brand-primary/10 focus:border-brand-primary outline-none transition-all"
-                          onChange={(e) => setNewSocket({ ...newSocket, [col.key]: e.target.value })}
-                        />
-                      </td>
-                    ))}
-                    <td className="px-6 py-3 text-right">
-                      <div className="flex justify-end gap-2">
-                        <button onClick={handleAdd} className="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"><Check className="h-4 w-4" /></button>
-                        <button onClick={() => setEditingId(null)} className="p-2 rounded-lg bg-zinc-100 text-zinc-400 hover:bg-zinc-200 transition-colors"><X className="h-4 w-4" /></button>
-                      </div>
-                    </td>
-                  </motion.tr>
+                  );
+                })}
+                {filteredSockets.length === 0 && (
+                  <div className="text-center py-16 text-zinc-400">
+                    <Cpu className="h-10 w-10 mx-auto mb-3 opacity-30" />
+                    <p className="text-sm font-medium">No results found</p>
+                  </div>
                 )}
-                {filteredSockets.slice(0, displayCount).map((socket, idx) => (
-                  <SocketRow
-                    key={socket.id}
-                    socket={socket}
-                    idx={idx}
-                    columns={columns}
-                    isAdmin={isAdmin}
-                    editingId={editingId}
-                    setEditingId={setEditingId}
-                    handleUpdate={handleUpdate}
-                    setModal={setModal}
-                    setSaveModal={setSaveModal}
-                    handleDuplicate={handleDuplicate}
-                    isSelected={selectedIds.has(socket.id)}
-                    onToggle={() => toggleOne(socket.id)}
-                  />
-                ))}
-              </AnimatePresence>
-              {filteredSockets.length > displayCount && (
-                <tr>
-                  <td colSpan={columns.length + (isAdmin ? 1 : 0)} className="px-6 py-8 text-center text-zinc-400 italic">
-                    {t('sharedTable.showingSubset', { displayCount, total: filteredSockets.length })}
-                    <button onClick={() => setDisplayCount(prev => prev + 200)} className="text-brand-primary hover:underline font-medium not-italic">{t('socketInfo.load200More')}</button>.
-                  </td>
-                </tr>
-              )}
-              {displayCount > 100 && filteredSockets.length <= displayCount && (
-                <tr>
-                  <td colSpan={columns.length + (isAdmin ? 1 : 0)} className="px-6 py-8 text-center text-zinc-400 italic">
-                    {t('sharedTable.showingAll', { total: filteredSockets.length })}
-                    <button onClick={() => setDisplayCount(100)} className="text-brand-primary hover:underline font-medium not-italic">{t('sharedTable.showLess')}</button>.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </DoubleScrollbar>
-      </motion.div>
+              </div>
+            ) : (
+              <div className="relative overflow-hidden surface-card">
+                <DoubleScrollbar>
+                  <table className="w-full text-left text-sm border-collapse">
+                <thead>
+                  <tr className="bg-zinc-50/50">
+                    {isAdmin && (
+                      <th className="px-4 py-4 border-b border-zinc-100 w-10">
+                        <input
+                          type="checkbox"
+                          className="rounded border-zinc-300 text-brand-primary focus:ring-brand-primary cursor-pointer"
+                          checked={isAllSelected(filteredSockets.slice(0, displayCount).map(x => x.id))}
+                          onChange={() => toggleAll(filteredSockets.slice(0, displayCount).map(x => x.id))}
+                        />
+                      </th>
+                    )}
+                    {columns.map((col, i) => (
+                      <th
+                        key={col.key}
+                        className={cn("px-0 py-0 border-b border-zinc-100", i === 0 && "sticky left-0 bg-zinc-50/50 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]")}
+                      >
+                        <div className="px-6 py-4 flex items-center cursor-pointer hover:bg-zinc-100/50 transition-colors" onClick={() => handleSort(col.key)}>
+                          <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 font-sans whitespace-nowrap">
+                            {col.label}
+                          </span>
+                          <ArrowUpDown className={cn("ml-2 h-3 w-3 shrink-0", sortConfig?.key === col.key ? "text-brand-primary opacity-100" : "text-zinc-400 opacity-50")} />
+                        </div>
+                      </th>
+                    ))}
+                    {isAdmin && <th className="px-6 py-4 border-b border-zinc-100 text-right">
+                      <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 font-sans">{t('sharedTable.actions')}</span>
+                    </th>}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-50">
+                  <AnimatePresence mode="popLayout">
+                    {editingId === 'new' && (
+                      <motion.tr
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 20 }}
+                        className="bg-zinc-50/30"
+                      >
+                        {isAdmin && <td className="px-4 py-3 w-10" />}
+                        {columns.map(col => (
+                          <td key={col.key} className="px-6 py-3">
+                            <input
+                              type="text"
+                              autoFocus={col.key === 'facility'}
+                              className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs focus:ring-2 focus:ring-brand-primary/10 focus:border-brand-primary outline-none transition-all"
+                              onChange={(e) => setNewSocket({ ...newSocket, [col.key]: e.target.value })}
+                            />
+                          </td>
+                        ))}
+                        <td className="px-6 py-3 text-right">
+                          <div className="flex justify-end gap-2">
+                            <button onClick={handleAdd} className="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"><Check className="h-4 w-4" /></button>
+                            <button onClick={() => setEditingId(null)} className="p-2 rounded-lg bg-zinc-100 text-zinc-400 hover:bg-zinc-200 transition-colors"><X className="h-4 w-4" /></button>
+                          </div>
+                        </td>
+                      </motion.tr>
+                    )}
+                    {filteredSockets.slice(0, displayCount).map((socket, idx) => (
+                      <SocketRow
+                        key={socket.id}
+                        socket={socket}
+                        idx={idx}
+                        columns={columns}
+                        isAdmin={isAdmin}
+                        editingId={editingId}
+                        setEditingId={setEditingId}
+                        handleUpdate={handleUpdate}
+                        setModal={setModal}
+                        setSaveModal={setSaveModal}
+                        handleDuplicate={handleDuplicate}
+                        isSelected={selectedIds.has(socket.id)}
+                        onToggle={() => toggleOne(socket.id)}
+                      />
+                    ))}
+                  </AnimatePresence>
+                  {filteredSockets.length > displayCount && (
+                    <tr>
+                      <td colSpan={columns.length + (isAdmin ? 1 : 0)} className="px-6 py-8 text-center text-zinc-400 italic">
+                        {t('sharedTable.showingSubset', { displayCount, total: filteredSockets.length })}
+                        <button onClick={() => setDisplayCount(prev => prev + 200)} className="text-brand-primary hover:underline font-medium not-italic">{t('socketInfo.load200More')}</button>.
+                      </td>
+                    </tr>
+                  )}
+                  {displayCount > 100 && filteredSockets.length <= displayCount && (
+                    <tr>
+                      <td colSpan={columns.length + (isAdmin ? 1 : 0)} className="px-6 py-8 text-center text-zinc-400 italic">
+                        {t('sharedTable.showingAll', { total: filteredSockets.length })}
+                        <button onClick={() => setDisplayCount(100)} className="text-brand-primary hover:underline font-medium not-italic">{t('sharedTable.showLess')}</button>.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </DoubleScrollbar>
+          </div>
+            )}
+          </motion.div>
         ) : (
           <motion.div 
             key="stats"
@@ -676,6 +759,15 @@ export default function SocketInfo({ isAdmin, selectedFacility }: { isAdmin: boo
       </AnimatePresence>
 
       <BulkActionBar count={selectedIds.size} onDelete={handleBulkDelete} onClear={clearSelection} />
+
+      {isMobile && isAdmin && viewMode === 'list' && (
+        <button
+          onClick={() => setEditingId('new')}
+          className="fixed bottom-20 right-4 z-30 h-14 w-14 rounded-full bg-brand-primary text-white shadow-xl shadow-brand-primary/30 flex items-center justify-center active:scale-95 transition-transform"
+        >
+          <Plus className="h-6 w-6" />
+        </button>
+      )}
 
       {/* Delete Confirmation Modal */}
       <AnimatePresence>

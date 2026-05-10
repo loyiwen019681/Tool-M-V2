@@ -14,7 +14,8 @@
     "dataManagement": "資料管理",
     "userManagement": "帳號管理",
     "auditLogs": "稽核日誌",
-    "logout": "登出系統"
+    "logout": "登出系統",
+    "allPages": "所有功能"
   },
   "common": {
     "goBack": "返回",

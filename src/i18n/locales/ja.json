@@ -14,7 +14,8 @@
     "dataManagement": "データ管理",
     "userManagement": "ユーザー管理",
     "auditLogs": "監査ログ",
-    "logout": "ログアウト"
+    "logout": "ログアウト",
+    "allPages": "全機能"
   },
   "common": {
     "goBack": "戻る",

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCollectionCRUD } from '../lib/useCollectionCRUD';
-import { Plus, Trash2, Edit2, Check, X, Search, MoreHorizontal, Filter, ArrowUpDown, Download, Copy } from 'lucide-react';
+import { Plus, Trash2, Edit2, Check, X, Search, MoreHorizontal, Filter, ArrowUpDown, Download, Copy, ChevronRight, SlidersHorizontal } from 'lucide-react';
 import { useExportExcel } from '../lib/useExportExcel';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -10,6 +10,8 @@ import { MultiSelectDropdown } from './ui/MultiSelectDropdown';
 import { usePersistentState } from '../lib/usePersistentState';
 import { useData } from '../contexts/DataContext';
 import { useDebounce } from '../lib/useDebounce';
+import { useIsMobile } from '../lib/useIsMobile';
+import { BottomSheet } from './ui/BottomSheet';
 import { useBulkSelect } from '../lib/useBulkSelect';
 import BulkActionBar from './ui/BulkActionBar';
 import { validateForm } from '../lib/validate';
@@ -177,6 +179,9 @@ export default function ProductInfo({ isAdmin, selectedFacility, onNavigate }: {
   const { t } = useTranslation();
   const { add, update, remove } = useCollectionCRUD<Product>('products');
   const { addToast } = useToast();
+  const isMobile = useIsMobile();
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
   const { exportToExcel } = useExportExcel();
   const { selectedIds, toggleOne, toggleAll, clearSelection, isAllSelected } = useBulkSelect();
   const { views: savedViews, saveView, deleteView } = useSavedViews('productInfo_savedViews');
@@ -564,106 +569,177 @@ export default function ProductInfo({ isAdmin, selectedFacility, onNavigate }: {
             </div>
           </div>
 
-          <div className="relative overflow-hidden surface-card">
-            <DoubleScrollbar>
-              <table className="w-full text-left text-sm border-collapse">
-                <thead>
-                  <tr className="bg-zinc-50/50">
-                    {isAdmin && (
-                      <th className="px-4 py-4 border-b border-zinc-100 w-10">
-                        <input
-                          type="checkbox"
-                          className="rounded border-zinc-300 text-brand-primary focus:ring-brand-primary cursor-pointer"
-                          checked={isAllSelected(filteredProducts.slice(0, displayCount).map(x => x.id))}
-                          onChange={() => toggleAll(filteredProducts.slice(0, displayCount).map(x => x.id))}
-                        />
-                      </th>
-                    )}
-                    {columns.map((col, i) => (
-                      <th
-                        key={col.key}
-                        className={cn("px-0 py-0 border-b border-zinc-100", i === 0 && "sticky left-0 bg-zinc-50/50 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]")}
-                      >
-                        <div className="px-6 py-4 flex items-center cursor-pointer hover:bg-zinc-100/50 transition-colors" onClick={() => handleSort(col.key)}>
-                          <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 font-sans whitespace-nowrap">
-                            {col.label}
-                          </span>
-                          <ArrowUpDown className={cn("ml-2 h-3 w-3 shrink-0", sortConfig?.key === col.key ? "text-brand-primary opacity-100" : "text-zinc-400 opacity-50")} />
-                        </div>
-                      </th>
-                    ))}
-                    {isAdmin && <th className="px-6 py-4 border-b border-zinc-100 text-right">
-                      <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 font-sans">{t('sharedTable.actions')}</span>
-                    </th>}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-50">
-                  <AnimatePresence mode="popLayout">
-                    {editingId === 'new' && (
-                      <motion.tr
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 20 }}
-                        className="bg-zinc-50/30"
-                      >
-                        {isAdmin && <td className="px-4 py-3 w-10" />}
-                        {columns.map(col => (
-                          <td key={col.key} className="px-6 py-3">
-                            <input
-                              type="text"
-                              autoFocus={col.key === 'facility'}
-                              className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs focus:ring-2 focus:ring-brand-primary/10 focus:border-brand-primary outline-none transition-all"
-                              onChange={(e) => setNewProduct({ ...newProduct, [col.key]: e.target.value })}
-                            />
-                          </td>
-                        ))}
-                        <td className="px-6 py-3 text-right">
-                          <div className="flex justify-end gap-2">
-                            <button onClick={handleAdd} className="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"><Check className="h-4 w-4" /></button>
-                            <button onClick={() => setEditingId(null)} className="p-2 rounded-lg bg-zinc-100 text-zinc-400 hover:bg-zinc-200 transition-colors"><X className="h-4 w-4" /></button>
+          {isMobile ? (
+            <div className="space-y-2.5">
+              {filteredProducts.map((product, idx) => {
+                const isExpanded = expandedCardId === product.id;
+                return (
+                  <div key={product.id} className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-hidden">
+                    <button
+                      className="w-full text-left p-4"
+                      onClick={() => setExpandedCardId(isExpanded ? null : product.id)}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <span className="text-xs font-bold uppercase tracking-wider text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded-full">{product.facility}</span>
+                            {product.temperature && <span className="text-xs font-medium text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded-full">{product.temperature}</span>}
                           </div>
-                        </td>
-                      </motion.tr>
+                          <p className="font-bold text-zinc-900 text-base truncate">{product.device}</p>
+                          <p className="text-sm text-zinc-500 truncate">{product.projectName}</p>
+                          <div className="flex items-center gap-3 mt-1.5 text-xs text-zinc-400">
+                            {product.tester && <span>Tester: <span className="font-medium text-zinc-600">{product.tester}</span></span>}
+                            {product.handler && <span>Handler: <span className="font-medium text-zinc-600">{product.handler}</span></span>}
+                          </div>
+                        </div>
+                        <ChevronRight className={cn('h-4 w-4 text-zinc-300 shrink-0 mt-1 transition-transform', isExpanded && 'rotate-90')} />
+                      </div>
+                    </button>
+                    {isExpanded && (
+                      <div className="px-4 pb-4 border-t border-zinc-50 pt-3 space-y-2">
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+                          {[
+                            { label: 'Insertion', value: product.insertion },
+                            { label: 'Site No.', value: product.siteNumber },
+                            { label: 'Ball Count', value: product.ballCountDevice },
+                            { label: 'Nickname', value: product.nickname },
+                            { label: 'CK Group', value: product.changeKitGroup },
+                            { label: 'LB Group', value: product.lbGroup },
+                            { label: 'Socket 1', value: product.socketName1 },
+                            { label: 'Socket 2', value: product.socketName2 },
+                            { label: 'Kit 1', value: product.kitName1 },
+                            { label: 'Kit 2', value: product.kitName2 },
+                          ].filter(f => f.value).map(f => (
+                            <div key={f.label}>
+                              <p className="text-zinc-400 text-[10px] uppercase tracking-wide">{f.label}</p>
+                              <p className="font-medium text-zinc-700 truncate">{f.value}</p>
+                            </div>
+                          ))}
+                        </div>
+                        {isAdmin && (
+                          <div className="flex gap-2 pt-2 border-t border-zinc-50">
+                            <button onClick={() => setEditingId(product.id)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-zinc-100 text-zinc-700 text-xs font-bold hover:bg-zinc-200 transition-colors">
+                              <Edit2 className="h-3.5 w-3.5" />{t('common.edit') || 'Edit'}
+                            </button>
+                            <button onClick={() => setModal({ isOpen: true, id: product.id })} className="flex items-center justify-center p-2 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     )}
-                    {filteredProducts.slice(0, displayCount).map((product, idx) => (
-                      <ProductRow
-                        key={product.id}
-                        product={product}
-                        idx={idx}
-                        columns={columns}
-                        isAdmin={isAdmin}
-                        editingId={editingId}
-                        setEditingId={setEditingId}
-                        handleUpdate={handleUpdate}
-                        setModal={setModal}
-                        setSelectedDevice={setSelectedDevice}
-                        setSaveModal={setSaveModal}
-                        handleDuplicate={handleDuplicate}
-                        isSelected={selectedIds.has(product.id)}
-                        onToggle={() => toggleOne(product.id)}
-                      />
-                    ))}
-                  </AnimatePresence>
-                  {filteredProducts.length > displayCount && (
-                    <tr>
-                      <td colSpan={columns.length + (isAdmin ? 1 : 0)} className="px-6 py-8 text-center text-zinc-400 italic">
-                        {t('sharedTable.showingSubset', { displayCount, total: filteredProducts.length })}
-                        <button onClick={() => setDisplayCount(prev => prev + 200)} className="text-brand-primary hover:underline font-medium not-italic">{t('productInfo.load200More')}</button>.
-                      </td>
+                  </div>
+                );
+              })}
+              {filteredProducts.length === 0 && (
+                <div className="text-center py-16 text-zinc-400">
+                  <Download className="h-10 w-10 mx-auto mb-3 opacity-30" />
+                  <p className="text-sm font-medium">{t('sharedTable.noResults')}</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="relative overflow-hidden surface-card">
+              <DoubleScrollbar>
+                <table className="w-full text-left text-sm border-collapse">
+                  <thead>
+                    <tr className="bg-zinc-50/50">
+                      {isAdmin && (
+                        <th className="px-4 py-4 border-b border-zinc-100 w-10">
+                          <input
+                            type="checkbox"
+                            className="rounded border-zinc-300 text-brand-primary focus:ring-brand-primary cursor-pointer"
+                            checked={isAllSelected(filteredProducts.slice(0, displayCount).map(x => x.id))}
+                            onChange={() => toggleAll(filteredProducts.slice(0, displayCount).map(x => x.id))}
+                          />
+                        </th>
+                      )}
+                      {columns.map((col, i) => (
+                        <th
+                          key={col.key}
+                          className={cn("px-0 py-0 border-b border-zinc-100", i === 0 && "sticky left-0 bg-zinc-50/50 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]")}
+                        >
+                          <div className="px-6 py-4 flex items-center cursor-pointer hover:bg-zinc-100/50 transition-colors" onClick={() => handleSort(col.key)}>
+                            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 font-sans whitespace-nowrap">
+                              {col.label}
+                            </span>
+                            <ArrowUpDown className={cn("ml-2 h-3 w-3 shrink-0", sortConfig?.key === col.key ? "text-brand-primary opacity-100" : "text-zinc-400 opacity-50")} />
+                          </div>
+                        </th>
+                      ))}
+                      {isAdmin && <th className="px-6 py-4 border-b border-zinc-100 text-right">
+                        <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 font-sans">{t('sharedTable.actions')}</span>
+                      </th>}
                     </tr>
-                  )}
-                  {displayCount > 100 && filteredProducts.length <= displayCount && (
-                    <tr>
-                      <td colSpan={columns.length + (isAdmin ? 1 : 0)} className="px-6 py-8 text-center text-zinc-400 italic">
-                        {t('sharedTable.showingAll', { total: filteredProducts.length })}
-                        <button onClick={() => setDisplayCount(100)} className="text-brand-primary hover:underline font-medium not-italic">{t('sharedTable.showLess')}</button>.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </DoubleScrollbar>
-          </div>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-50">
+                    <AnimatePresence mode="popLayout">
+                      {editingId === 'new' && (
+                        <motion.tr
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 20 }}
+                          className="bg-zinc-50/30"
+                        >
+                          {isAdmin && <td className="px-4 py-3 w-10" />}
+                          {columns.map(col => (
+                            <td key={col.key} className="px-6 py-3">
+                              <input
+                                type="text"
+                                autoFocus={col.key === 'facility'}
+                                className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs focus:ring-2 focus:ring-brand-primary/10 focus:border-brand-primary outline-none transition-all"
+                                onChange={(e) => setNewProduct({ ...newProduct, [col.key]: e.target.value })}
+                              />
+                            </td>
+                          ))}
+                          <td className="px-6 py-3 text-right">
+                            <div className="flex justify-end gap-2">
+                              <button onClick={handleAdd} className="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"><Check className="h-4 w-4" /></button>
+                              <button onClick={() => setEditingId(null)} className="p-2 rounded-lg bg-zinc-100 text-zinc-400 hover:bg-zinc-200 transition-colors"><X className="h-4 w-4" /></button>
+                            </div>
+                          </td>
+                        </motion.tr>
+                      )}
+                      {filteredProducts.slice(0, displayCount).map((product, idx) => (
+                        <ProductRow
+                          key={product.id}
+                          product={product}
+                          idx={idx}
+                          columns={columns}
+                          isAdmin={isAdmin}
+                          editingId={editingId}
+                          setEditingId={setEditingId}
+                          handleUpdate={handleUpdate}
+                          setModal={setModal}
+                          setSelectedDevice={setSelectedDevice}
+                          setSaveModal={setSaveModal}
+                          handleDuplicate={handleDuplicate}
+                          isSelected={selectedIds.has(product.id)}
+                          onToggle={() => toggleOne(product.id)}
+                        />
+                      ))}
+                    </AnimatePresence>
+                    {filteredProducts.length > displayCount && (
+                      <tr>
+                        <td colSpan={columns.length + (isAdmin ? 1 : 0)} className="px-6 py-8 text-center text-zinc-400 italic">
+                          {t('sharedTable.showingSubset', { displayCount, total: filteredProducts.length })}
+                          <button onClick={() => setDisplayCount(prev => prev + 200)} className="text-brand-primary hover:underline font-medium not-italic">{t('productInfo.load200More')}</button>.
+                        </td>
+                      </tr>
+                    )}
+                    {displayCount > 100 && filteredProducts.length <= displayCount && (
+                      <tr>
+                        <td colSpan={columns.length + (isAdmin ? 1 : 0)} className="px-6 py-8 text-center text-zinc-400 italic">
+                          {t('sharedTable.showingAll', { total: filteredProducts.length })}
+                          <button onClick={() => setDisplayCount(100)} className="text-brand-primary hover:underline font-medium not-italic">{t('sharedTable.showLess')}</button>.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </DoubleScrollbar>
+            </div>
+          )}
         </>
       ) : (
         <div className="surface-card p-6">
@@ -790,6 +866,16 @@ export default function ProductInfo({ isAdmin, selectedFacility, onNavigate }: {
       </AnimatePresence>
 
       <BulkActionBar count={selectedIds.size} onDelete={handleBulkDelete} onClear={clearSelection} />
+
+      {/* Mobile FAB */}
+      {isMobile && isAdmin && viewMode === 'inventory' && (
+        <button
+          onClick={() => setEditingId('new')}
+          className="fixed bottom-20 right-4 z-30 h-14 w-14 rounded-full bg-brand-primary text-white shadow-xl shadow-brand-primary/30 flex items-center justify-center active:scale-95 transition-transform"
+        >
+          <Plus className="h-6 w-6" />
+        </button>
+      )}
 
       {/* Device Details Modal */}
       <AnimatePresence>
