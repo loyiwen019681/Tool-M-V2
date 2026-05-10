@@ -180,6 +180,7 @@
     "missingLTDesc": "The following Product Info entries have a Socket Name that is missing from the Life Time data.",
     "noMissingLT": "No missing life time records found.",
     "allGood": "All Good!",
+    "viewToolingDetails": "Socket / Kit / Load Board Details",
     "deleteWarning": "Are you sure you want to delete this product record? This action cannot be undone and will be permanently removed from the system.",
     "load200More": "load 200 more",
     "filters": {

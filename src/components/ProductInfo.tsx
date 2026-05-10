@@ -575,8 +575,8 @@ export default function ProductInfo({ isAdmin, selectedFacility, onNavigate }: {
                 const isExpanded = expandedCardId === product.id;
                 return (
                   <div key={product.id} className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-hidden">
-                    <button
-                      className="w-full text-left p-4"
+                    <div
+                      className="w-full text-left p-4 cursor-pointer"
                       onClick={() => setExpandedCardId(isExpanded ? null : product.id)}
                     >
                       <div className="flex items-start justify-between gap-3">
@@ -585,7 +585,12 @@ export default function ProductInfo({ isAdmin, selectedFacility, onNavigate }: {
                             <span className="text-xs font-bold uppercase tracking-wider text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded-full">{product.facility}</span>
                             {product.temperature && <span className="text-xs font-medium text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded-full">{product.temperature}</span>}
                           </div>
-                          <p className="font-bold text-zinc-900 text-base truncate">{product.device}</p>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setSelectedDevice(product.device); }}
+                            className="font-bold text-brand-primary text-base truncate max-w-full text-left hover:underline"
+                          >
+                            {product.device}
+                          </button>
                           <p className="text-sm text-zinc-500 truncate">{product.projectName}</p>
                           <div className="flex items-center gap-3 mt-1.5 text-xs text-zinc-400">
                             {product.tester && <span>Tester: <span className="font-medium text-zinc-600">{product.tester}</span></span>}
@@ -594,7 +599,7 @@ export default function ProductInfo({ isAdmin, selectedFacility, onNavigate }: {
                         </div>
                         <ChevronRight className={cn('h-4 w-4 text-zinc-300 shrink-0 mt-1 transition-transform', isExpanded && 'rotate-90')} />
                       </div>
-                    </button>
+                    </div>
                     {isExpanded && (
                       <div className="px-4 pb-4 border-t border-zinc-50 pt-3 space-y-2">
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
@@ -616,16 +621,25 @@ export default function ProductInfo({ isAdmin, selectedFacility, onNavigate }: {
                             </div>
                           ))}
                         </div>
-                        {isAdmin && (
-                          <div className="flex gap-2 pt-2 border-t border-zinc-50">
-                            <button onClick={() => setEditingId(product.id)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-zinc-100 text-zinc-700 text-xs font-bold hover:bg-zinc-200 transition-colors">
-                              <Edit2 className="h-3.5 w-3.5" />{t('common.edit') || 'Edit'}
-                            </button>
-                            <button onClick={() => setModal({ isOpen: true, id: product.id })} className="flex items-center justify-center p-2 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </button>
-                          </div>
-                        )}
+                        <div className="pt-2 border-t border-zinc-50 space-y-2">
+                          <button
+                            onClick={() => setSelectedDevice(product.device)}
+                            className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-brand-primary/10 text-brand-primary text-xs font-bold hover:bg-brand-primary/20 transition-colors"
+                          >
+                            <SlidersHorizontal className="h-3.5 w-3.5" />
+                            {t('productInfo.viewToolingDetails') || 'Socket / Kit / Load Board 詳情'}
+                          </button>
+                          {isAdmin && (
+                            <div className="flex gap-2">
+                              <button onClick={() => setEditingId(product.id)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-zinc-100 text-zinc-700 text-xs font-bold hover:bg-zinc-200 transition-colors">
+                                <Edit2 className="h-3.5 w-3.5" />{t('common.edit') || 'Edit'}
+                              </button>
+                              <button onClick={() => setModal({ isOpen: true, id: product.id })} className="flex items-center justify-center p-2 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -904,7 +918,7 @@ function DeviceDetailsModal({ device, products, onClose, onNavigate }: { device:
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="w-full max-w-4xl max-h-[80vh] overflow-hidden flex flex-col rounded-[2rem] bg-white shadow-2xl"
+        className="w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col rounded-[2rem] bg-white shadow-2xl"
       >
         <div className="flex items-center justify-between border-b border-zinc-100 p-6">
           <div className="space-y-1">
@@ -973,7 +987,7 @@ function DeviceDetailsModal({ device, products, onClose, onNavigate }: { device:
                           )}
                         </div>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div className="rounded-xl bg-white p-4 shadow-sm border border-zinc-100">
                           <div className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3">Sockets</div>
                           <div className="space-y-3">

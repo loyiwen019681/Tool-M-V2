@@ -180,6 +180,7 @@
     "missingLTDesc": "以下の製品情報エントリは、ライフタイムデータに欠落しているSocket名を持っています。",
     "noMissingLT": "欠落しているライフタイム記録は見つかりませんでした。",
     "allGood": "すべて正常です！",
+    "viewToolingDetails": "Socket / Kit / Load Board 詳細",
     "deleteWarning": "この製品レコードを削除してもよろしいですか？この操作は元に戻すことができず、システムから完全に削除されます。",
     "load200More": "さらに200件読み込む",
     "filters": {

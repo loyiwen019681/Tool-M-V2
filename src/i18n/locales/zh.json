@@ -180,6 +180,7 @@
     "missingLTDesc": "以下產品資訊項目的 Socket 名稱在壽命資料中遺失。",
     "noMissingLT": "沒有找到遺失的壽命紀錄。",
     "allGood": "一切正常！",
+    "viewToolingDetails": "查看 Socket / Kit / Load Board 詳情",
     "deleteWarning": "確定要刪除這筆產品紀錄嗎？此操作無法還原，將會從系統中永久移除。",
     "load200More": "載入 200 筆",
     "filters": {
