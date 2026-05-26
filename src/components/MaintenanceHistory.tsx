@@ -232,7 +232,12 @@ export default function MaintenanceHistory({
 
   const filteredRecords = useMemo(() => {
     let result = records.filter(record => {
-      const searchStr = `${record.lbNo} ${record.issue} ${record.action} ${record.facility}`.toLowerCase();
+      const searchStr = [
+        record.facility, record.lbNo, record.sniNo, record.lbType,
+        record.insertion, record.vendor, record.status, record.site,
+        record.issue, record.issueDate, record.repairDate, record.action,
+        record.createdBy
+      ].join(' ').toLowerCase();
       const matchSearch = searchStr.includes(debouncedSearchTerm.toLowerCase());
       
       const matchLBNo = filterLBNo.length === 0 || filterLBNo.includes(String(record.lbNo || ''));
@@ -330,22 +335,24 @@ export default function MaintenanceHistory({
           <h2 className="font-serif text-4xl italic text-zinc-900 tracking-tight">{t('maintenanceHistory.title')}</h2>
           <p className="text-xs text-zinc-400 uppercase tracking-[0.2em] font-bold">{t('maintenanceHistory.subtitle')}</p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap mb-2 sm:mb-0">
           <button
             onClick={handleExportCSV}
             disabled={filteredRecords.length === 0}
-            className="flex items-center gap-2 rounded-xl bg-zinc-900 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-black/10 transition-all hover:bg-zinc-800 hover:translate-y-[-2px] hover:shadow-xl active:translate-y-[0px] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-bold text-zinc-600 hover:bg-zinc-50 transition-all shadow-sm active:scale-95 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Download className="h-4 w-4" />
-            <span className="hidden sm:inline">{t('maintenanceHistory.export')}</span>
+            <span>{t('common.exportExcel')}</span>
           </button>
-          <button
-            onClick={onAddMaintenanceRecord}
-            className="flex items-center gap-2 rounded-xl bg-brand-primary px-6 py-3 text-sm font-bold text-white shadow-lg shadow-brand-primary/20 transition-all hover:translate-y-[-2px] hover:shadow-xl active:translate-y-[0px]"
-          >
-            <Plus className="h-4 w-4" />
-            {t('maintenanceHistory.addRecord')}
-          </button>
+          {isAdmin && (
+            <button
+              onClick={onAddMaintenanceRecord}
+              className="flex items-center gap-2 rounded-xl bg-zinc-900 px-5 py-2.5 text-sm font-bold text-white hover:bg-zinc-800 transition-all shadow-lg shadow-black/10 active:scale-95 whitespace-nowrap"
+            >
+              <Plus className="h-4 w-4" />
+              <span>{t('maintenanceHistory.addRecord')}</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -401,7 +408,7 @@ export default function MaintenanceHistory({
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
           <input
             type="text"
-            placeholder="Search maintenance logs..."
+            placeholder={t('maintenanceHistory.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full rounded-xl border border-zinc-100 bg-zinc-50/50 pl-10 pr-4 py-2 text-sm focus:border-brand-primary focus:bg-white focus:outline-none transition-all"
@@ -469,7 +476,7 @@ export default function MaintenanceHistory({
           {filteredRecords.length === 0 && (
             <div className="text-center py-16 text-zinc-400">
               <History className="h-10 w-10 mx-auto mb-3 opacity-30" />
-              <p className="text-sm font-medium">No results found</p>
+              <p className="text-sm font-medium">{t('sharedTable.noResults')}</p>
             </div>
           )}
         </div>
@@ -525,7 +532,7 @@ export default function MaintenanceHistory({
                 {filteredRecords.length === 0 && (
                   <tr>
                     <td colSpan={columns.length + (isAdmin ? 1 : 0)} className="px-6 py-12 text-center text-zinc-400 italic">
-                      No maintenance records found.
+                      {t('maintenanceHistory.noRecords')}
                     </td>
                   </tr>
                 )}
@@ -558,23 +565,23 @@ export default function MaintenanceHistory({
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-50 text-red-600">
                   <Trash2 className="h-6 w-6" />
                 </div>
-                <h3 className="text-xl font-bold text-zinc-900">Delete Record</h3>
+                <h3 className="text-xl font-bold text-zinc-900">{t('sharedTable.confirmDeletion')}</h3>
               </div>
               <p className="mb-8 text-sm leading-relaxed text-zinc-600">
-                Are you sure you want to delete this maintenance record? This action cannot be undone.
+                {t('maintenanceHistory.deleteWarning')}
               </p>
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setDeleteModal({ isOpen: false, id: null })}
                   className="rounded-xl px-6 py-2.5 text-sm font-bold text-zinc-500 transition-colors hover:bg-zinc-100"
                 >
-                  Cancel
+                  {t('sharedTable.cancel')}
                 </button>
                 <button
                   onClick={handleDelete}
                   className="rounded-xl bg-red-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-red-700 shadow-lg shadow-red-600/20"
                 >
-                  Delete Permanently
+                  {t('sharedTable.deleteRecord')}
                 </button>
               </div>
             </motion.div>

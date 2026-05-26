@@ -486,7 +486,10 @@
     "subtitle": "ロードボード修理の包括的なログ",
     "addRecord": "記録追加",
     "export": "エクスポート",
-    "clear": "クリア"
+    "clear": "クリア",
+    "deleteWarning": "このメンテナンス記録を削除してもよろしいですか？この操作は元に戻すことができません。",
+    "noRecords": "メンテナンス記録が見つかりません。",
+    "searchPlaceholder": "すべてのメンテナンスログを検索..."
   },
   "appearance": {
     "title": "外観設定",

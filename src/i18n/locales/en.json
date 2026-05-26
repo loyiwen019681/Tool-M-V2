@@ -484,9 +484,12 @@
   "maintenanceHistory": {
     "title": "Maintenance History",
     "subtitle": "Comprehensive logs of Load Board repairs",
-    "addRecord": "ADD RECORD",
-    "export": "EXPORT",
-    "clear": "Clear"
+    "addRecord": "Add Record",
+    "export": "Export",
+    "clear": "Clear",
+    "deleteWarning": "Are you sure you want to delete this maintenance record? This action cannot be undone.",
+    "noRecords": "No maintenance records found.",
+    "searchPlaceholder": "Search all maintenance logs..."
   },
   "appearance": {
     "title": "Appearance",

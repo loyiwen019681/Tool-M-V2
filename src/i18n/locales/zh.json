@@ -486,7 +486,10 @@
     "subtitle": "負載板維修的完整日誌",
     "addRecord": "新增紀錄",
     "export": "匯出",
-    "clear": "清除"
+    "clear": "清除",
+    "deleteWarning": "確定要刪除這筆維修紀錄嗎？此操作無法還原。",
+    "noRecords": "找不到符合條件的維修紀錄。",
+    "searchPlaceholder": "搜尋所有維修紀錄..."
   },
   "appearance": {
     "title": "外觀設定",
