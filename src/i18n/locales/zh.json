@@ -459,6 +459,28 @@
     "noRecords": "找不到符合條件的維修紀錄。",
     "repairCases": "維修案例"
   },
+  "lbHistory": {
+    "title": "生命週期歷史",
+    "subtitle": "完整維修與修復時間軸",
+    "exportCSV": "匯出 CSV",
+    "maintenanceTimeline": "維修時間軸",
+    "noRecords": "找不到此負載板的維修紀錄。",
+    "noIssueDesc": "無問題描述",
+    "site": "站點",
+    "repairedOn": "修復日期",
+    "healthMetrics": "健康指標",
+    "topFailedSite": "最多故障站點",
+    "avgRepair": "平均修復時間",
+    "days": "天",
+    "totalRepairs": "總維修次數",
+    "times": "次",
+    "boardDetails": "板子詳情",
+    "projectName": "專案名稱",
+    "facility": "廠區",
+    "lbGroup": "LB 群組",
+    "currentLocation": "目前位置",
+    "noMasterRecord": "在負載板庫存中找不到對應的主資料。"
+  },
   "maintenanceHistory": {
     "title": "維修歷史記錄",
     "subtitle": "負載板維修的完整日誌",

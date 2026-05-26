@@ -459,6 +459,28 @@
     "noRecords": "No maintenance records found for the selected criteria.",
     "repairCases": "Repair Cases"
   },
+  "lbHistory": {
+    "title": "Lifecycle History",
+    "subtitle": "Complete maintenance and repair timeline",
+    "exportCSV": "Export CSV",
+    "maintenanceTimeline": "Maintenance Timeline",
+    "noRecords": "No maintenance records found for this Load Board.",
+    "noIssueDesc": "No issue description",
+    "site": "Site",
+    "repairedOn": "Repaired On",
+    "healthMetrics": "Health Metrics",
+    "topFailedSite": "Top Failed Site",
+    "avgRepair": "Avg. Repair",
+    "days": "Days",
+    "totalRepairs": "Total Repairs",
+    "times": "Times",
+    "boardDetails": "Board Details",
+    "projectName": "Project Name",
+    "facility": "Facility",
+    "lbGroup": "LB Group",
+    "currentLocation": "Current Location",
+    "noMasterRecord": "No matching master record found in Load Board Inventory."
+  },
   "maintenanceHistory": {
     "title": "Maintenance History",
     "subtitle": "Comprehensive logs of Load Board repairs",

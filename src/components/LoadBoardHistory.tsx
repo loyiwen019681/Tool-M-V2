@@ -6,6 +6,7 @@ import { ArrowLeft, Clock, Wrench, AlertCircle, CheckCircle2, ChevronRight, Acti
 import { motion } from 'motion/react';
 import { cn } from '../lib/utils';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface MaintenanceRecord {
   id: string;
@@ -26,6 +27,7 @@ interface MaintenanceRecord {
 }
 
 export default function LoadBoardHistory({ lbNo, onBack }: { lbNo: string, onBack: () => void }) {
+  const { t } = useTranslation();
   const { loadBoards } = useData();
   const [records, setRecords] = useState<MaintenanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -175,13 +177,13 @@ export default function LoadBoardHistory({ lbNo, onBack }: { lbNo: string, onBac
           </button>
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <h2 className="font-serif text-3xl italic text-zinc-900 tracking-tight">Lifecycle History</h2>
+              <h2 className="font-serif text-3xl italic text-zinc-900 tracking-tight">{t('lbHistory.title')}</h2>
               <span className="px-3 py-1 bg-brand-primary/10 text-brand-primary rounded-lg text-sm font-bold font-mono">
                 {lbNo}
               </span>
             </div>
             <p className="text-xs text-zinc-400 uppercase tracking-[0.2em] font-bold">
-              Complete maintenance and repair timeline
+              {t('lbHistory.subtitle')}
             </p>
           </div>
         </div>
@@ -191,7 +193,7 @@ export default function LoadBoardHistory({ lbNo, onBack }: { lbNo: string, onBac
           className="flex items-center gap-2 rounded-xl bg-zinc-900 px-5 py-2.5 text-sm font-bold text-white transition-all hover:bg-zinc-800 shadow-lg shadow-black/10 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
         >
           <Download className="h-4 w-4" />
-          <span>Export CSV</span>
+          <span>{t('lbHistory.exportCSV')}</span>
         </button>
       </div>
 
@@ -206,13 +208,13 @@ export default function LoadBoardHistory({ lbNo, onBack }: { lbNo: string, onBac
           <div className="lg:col-span-2 space-y-6">
             <div className="flex items-center gap-2 mb-8">
               <History className="h-5 w-5 text-zinc-400" />
-              <h3 className="text-sm font-bold text-zinc-700 uppercase tracking-widest">Maintenance Timeline</h3>
+              <h3 className="text-sm font-bold text-zinc-700 uppercase tracking-widest">{t('lbHistory.maintenanceTimeline')}</h3>
             </div>
 
             {records.length === 0 ? (
               <div className="text-center py-12 surface-card border border-dashed border-zinc-200">
                 <Wrench className="h-8 w-8 text-zinc-300 mx-auto mb-3" />
-                <p className="text-zinc-500 text-sm">No maintenance records found for this Load Board.</p>
+                <p className="text-zinc-500 text-sm">{t('lbHistory.noRecords')}</p>
               </div>
             ) : (
               <div className="relative space-y-8 before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-zinc-200 before:to-transparent">
@@ -241,7 +243,7 @@ export default function LoadBoardHistory({ lbNo, onBack }: { lbNo: string, onBac
                         </div>
                       </div>
                       
-                      <h4 className="text-sm font-bold text-zinc-900 mb-3 whitespace-pre-wrap">{record.issue || 'No issue description'}</h4>
+                      <h4 className="text-sm font-bold text-zinc-900 mb-3 whitespace-pre-wrap">{record.issue || t('lbHistory.noIssueDesc')}</h4>
                       
                       <div className="space-y-2">
                         {record.action && (
@@ -253,12 +255,12 @@ export default function LoadBoardHistory({ lbNo, onBack }: { lbNo: string, onBac
                         
                         <div className="flex items-center gap-4 mt-4 pt-3 border-t border-zinc-100">
                           <div className="flex flex-col">
-                            <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-bold">Site</span>
+                            <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-bold">{t('lbHistory.site')}</span>
                             <span className="text-xs text-zinc-700">{record.site || '-'}</span>
                           </div>
                           {record.repairDate && (
                             <div className="flex flex-col">
-                              <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-bold">Repaired On</span>
+                              <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-bold">{t('lbHistory.repairedOn')}</span>
                               <span className="text-xs text-zinc-700">{record.repairDate}</span>
                             </div>
                           )}
@@ -280,25 +282,25 @@ export default function LoadBoardHistory({ lbNo, onBack }: { lbNo: string, onBac
                   <div>
                     <div className="flex items-center gap-2 mb-4">
                       <Stethoscope className="h-5 w-5 text-zinc-400" />
-                      <h3 className="text-sm font-bold text-zinc-700 uppercase tracking-widest">Health Metrics</h3>
+                      <h3 className="text-sm font-bold text-zinc-700 uppercase tracking-widest">{t('lbHistory.healthMetrics')}</h3>
                     </div>
                     <div className="surface-card p-6 grid grid-cols-2 gap-4">
                       <div className="col-span-2 bg-zinc-50 rounded-xl p-4 border border-zinc-100">
-                        <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-bold block mb-1">Top Failed Site</span>
+                        <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-bold block mb-1">{t('lbHistory.topFailedSite')}</span>
                         <p className="text-lg font-bold text-zinc-800 line-clamp-1">{healthStats.topSite}</p>
                       </div>
                       <div className="bg-emerald-50/50 rounded-xl p-4 border border-emerald-100/50 flex flex-col justify-between">
-                        <span className="text-[10px] uppercase tracking-widest text-emerald-600/70 font-bold block mb-1">Avg. Repair</span>
+                        <span className="text-[10px] uppercase tracking-widest text-emerald-600/70 font-bold block mb-1">{t('lbHistory.avgRepair')}</span>
                         <div className="flex items-baseline gap-1">
                           <span className="text-2xl font-bold text-emerald-700">{healthStats.mttr}</span>
-                          <span className="text-xs font-bold text-emerald-600/70 uppercase">Days</span>
+                          <span className="text-xs font-bold text-emerald-600/70 uppercase">{t('lbHistory.days')}</span>
                         </div>
                       </div>
                       <div className="bg-amber-50/50 rounded-xl p-4 border border-amber-100/50 flex flex-col justify-between">
-                        <span className="text-[10px] uppercase tracking-widest text-amber-600/70 font-bold block mb-1">Total Repairs</span>
+                        <span className="text-[10px] uppercase tracking-widest text-amber-600/70 font-bold block mb-1">{t('lbHistory.totalRepairs')}</span>
                         <div className="flex items-baseline gap-1">
                           <span className="text-2xl font-bold text-amber-700">{healthStats.repairCount}</span>
-                          <span className="text-xs font-bold text-amber-600/70 uppercase">Times</span>
+                          <span className="text-xs font-bold text-amber-600/70 uppercase">{t('lbHistory.times')}</span>
                         </div>
                       </div>
                     </div>
@@ -309,32 +311,32 @@ export default function LoadBoardHistory({ lbNo, onBack }: { lbNo: string, onBac
                 <div>
                   <div className="flex items-center gap-2 mb-4">
                     <AlertCircle className="h-5 w-5 text-zinc-400" />
-                    <h3 className="text-sm font-bold text-zinc-700 uppercase tracking-widest">Board Details</h3>
+                    <h3 className="text-sm font-bold text-zinc-700 uppercase tracking-widest">{t('lbHistory.boardDetails')}</h3>
                   </div>
                   
                   <div className="surface-card p-6 space-y-5">
                     {lbDetails ? (
                       <>
                         <div className="space-y-1">
-                          <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-bold">Project Name</span>
+                          <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-bold">{t('lbHistory.projectName')}</span>
                           <p className="text-sm font-medium text-zinc-900">{lbDetails.projectName || '-'}</p>
                         </div>
                         <div className="space-y-1">
-                          <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-bold">Facility</span>
+                          <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-bold">{t('lbHistory.facility')}</span>
                           <p className="text-sm font-medium text-zinc-900">{lbDetails.facility || '-'}</p>
                         </div>
                         <div className="space-y-1">
-                          <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-bold">LB Group</span>
+                          <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-bold">{t('lbHistory.lbGroup')}</span>
                           <p className="text-sm font-medium text-zinc-900">{lbDetails.lbGroup || '-'}</p>
                         </div>
                         <div className="space-y-1">
-                          <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-bold">Current Location</span>
+                          <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-bold">{t('lbHistory.currentLocation')}</span>
                           <p className="text-sm font-medium text-zinc-900">{lbDetails.location || '-'}</p>
                         </div>
                       </>
                     ) : (
                       <div className="text-center py-6">
-                        <p className="text-xs text-zinc-500 italic">No matching master record found in Load Board Inventory.</p>
+                        <p className="text-xs text-zinc-500 italic">{t('lbHistory.noMasterRecord')}</p>
                       </div>
                     )}
                   </div>

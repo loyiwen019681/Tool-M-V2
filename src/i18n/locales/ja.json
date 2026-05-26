@@ -459,6 +459,28 @@
     "noRecords": "選択した条件に一致するメンテナンス記録が見つかりません。",
     "repairCases": "修理件数"
   },
+  "lbHistory": {
+    "title": "ライフサイクル履歴",
+    "subtitle": "完全なメンテナンスと修理のタイムライン",
+    "exportCSV": "CSVエクスポート",
+    "maintenanceTimeline": "メンテナンスタイムライン",
+    "noRecords": "このLoad Boardのメンテナンス記録が見つかりません。",
+    "noIssueDesc": "問題の説明なし",
+    "site": "サイト",
+    "repairedOn": "修理日",
+    "healthMetrics": "健全性指標",
+    "topFailedSite": "最多障害サイト",
+    "avgRepair": "平均修理時間",
+    "days": "日",
+    "totalRepairs": "総修理回数",
+    "times": "回",
+    "boardDetails": "ボード詳細",
+    "projectName": "プロジェクト名",
+    "facility": "設備",
+    "lbGroup": "LBグループ",
+    "currentLocation": "現在の場所",
+    "noMasterRecord": "Load Boardインベントリに対応するマスターレコードが見つかりません。"
+  },
   "maintenanceHistory": {
     "title": "メンテナンス履歴",
     "subtitle": "ロードボード修理の包括的なログ",
