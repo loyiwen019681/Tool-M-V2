@@ -637,6 +637,9 @@
     "uploadError": "Failed to upload image. Please try again.",
     "removeSuccess": "Image removed",
     "fileTooLarge": "File is too large. Please use an image under 10MB.",
-    "invalidType": "Please select an image file."
+    "invalidType": "Please select an image file.",
+    "backgroundFit": "Background Fit",
+    "backgroundFitCover": "Cover",
+    "backgroundFitContain": "Contain"
   }
 }

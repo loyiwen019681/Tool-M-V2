@@ -1,7 +1,7 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { auth } from '../firebase';
 import { updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
-import { KeyRound, ShieldCheck, AlertCircle, CheckCircle2, Circle, Loader2, UserCircle, ImageIcon, Upload, X, Trash2 } from 'lucide-react';
+import { KeyRound, ShieldCheck, AlertCircle, CheckCircle2, Circle, Loader2, UserCircle, ImageIcon, Upload, X, Trash2, Maximize2, Minimize2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ThemeSwitcher } from './ThemeSwitcher';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +9,7 @@ import { useUserProfile } from '../contexts/UserProfileContext';
 
 export default function Settings() {
   const { t } = useTranslation();
-  const { profile, uploadAvatar, uploadBackground, removeAvatar, removeBackground, uploading } = useUserProfile();
+  const { profile, uploadAvatar, uploadBackground, removeAvatar, removeBackground, updateBackgroundFit, uploading } = useUserProfile();
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -272,6 +272,39 @@ export default function Settings() {
                 e.target.value = '';
               }}
             />
+            {profile.backgroundUrl && (
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 ml-1">
+                  {t('profile.backgroundFit')}
+                </label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => updateBackgroundFit('cover')}
+                    className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-bold transition-colors ${
+                      (profile.backgroundFit || 'cover') === 'cover'
+                        ? 'border-zinc-900 bg-zinc-900 text-white'
+                        : 'border-zinc-200 bg-zinc-50 text-zinc-700 hover:bg-zinc-100'
+                    }`}
+                  >
+                    <Maximize2 className="h-3.5 w-3.5" />
+                    {t('profile.backgroundFitCover')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateBackgroundFit('contain')}
+                    className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-bold transition-colors ${
+                      profile.backgroundFit === 'contain'
+                        ? 'border-zinc-900 bg-zinc-900 text-white'
+                        : 'border-zinc-200 bg-zinc-50 text-zinc-700 hover:bg-zinc-100'
+                    }`}
+                  >
+                    <Minimize2 className="h-3.5 w-3.5" />
+                    {t('profile.backgroundFitContain')}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

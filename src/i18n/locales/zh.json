@@ -636,6 +636,9 @@
     "uploadError": "圖片上傳失敗，請重試。",
     "removeSuccess": "圖片已移除",
     "fileTooLarge": "檔案過大，請使用 10MB 以下的圖片。",
-    "invalidType": "請選擇圖片檔案。"
+    "invalidType": "請選擇圖片檔案。",
+    "backgroundFit": "背景顯示方式",
+    "backgroundFitCover": "填滿",
+    "backgroundFitContain": "完整顯示"
   }
 }

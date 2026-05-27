@@ -379,8 +379,9 @@ export default function Dashboard({ user, role, selectedFacility, onBackToFacili
         className="flex-1 overflow-y-auto overflow-x-hidden relative w-full"
         style={profile.backgroundUrl ? {
           backgroundImage: `url(${profile.backgroundUrl})`,
-          backgroundSize: 'cover',
+          backgroundSize: profile.backgroundFit || 'cover',
           backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
           backgroundAttachment: 'fixed',
         } : undefined}
       >
