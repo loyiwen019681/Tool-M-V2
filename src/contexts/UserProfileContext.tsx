@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { auth, db, storage } from '../firebase';
+import { auth, db } from '../firebase';
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { onAuthStateChanged } from 'firebase/auth';
 
 interface UserProfile {
@@ -27,7 +26,8 @@ const UserProfileContext = createContext<UserProfileContextType>({
   uploading: false,
 });
 
-async function compressImage(file: File, maxWidth: number, maxHeight: number, quality: number): Promise<Blob> {
+// Compress image and return base64 dataURL for Firestore storage (no Firebase Storage needed)
+async function compressToDataURL(file: File, maxWidth: number, maxHeight: number, quality: number): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
@@ -43,12 +43,8 @@ async function compressImage(file: File, maxWidth: number, maxHeight: number, qu
       const canvas = document.createElement('canvas');
       canvas.width = width;
       canvas.height = height;
-      const ctx = canvas.getContext('2d')!;
-      ctx.drawImage(img, 0, 0, width, height);
-      canvas.toBlob((blob) => {
-        if (blob) resolve(blob);
-        else reject(new Error('Canvas toBlob failed'));
-      }, 'image/jpeg', quality);
+      canvas.getContext('2d')!.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
     };
 
     img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Image load failed')); };
@@ -85,11 +81,9 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
     if (!uid) return;
     setUploading(true);
     try {
-      const compressed = await compressImage(file, 256, 256, 0.85);
-      const storageRef = ref(storage, `avatars/${uid}/avatar.jpg`);
-      await uploadBytes(storageRef, compressed, { contentType: 'image/jpeg' });
-      const url = await getDownloadURL(storageRef);
-      await updateDoc(doc(db, 'users', uid), { avatarUrl: url });
+      // Avatar: max 200×200, quality 0.82 → ~5–15KB as base64
+      const dataUrl = await compressToDataURL(file, 200, 200, 0.82);
+      await updateDoc(doc(db, 'users', uid), { avatarUrl: dataUrl });
     } finally {
       setUploading(false);
     }
@@ -99,11 +93,13 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
     if (!uid) return;
     setUploading(true);
     try {
-      const compressed = await compressImage(file, 1920, 1080, 0.80);
-      const storageRef = ref(storage, `backgrounds/${uid}/background.jpg`);
-      await uploadBytes(storageRef, compressed, { contentType: 'image/jpeg' });
-      const url = await getDownloadURL(storageRef);
-      await updateDoc(doc(db, 'users', uid), { backgroundUrl: url });
+      // Background: max 1280×720, quality 0.65 → ~30–100KB as base64
+      const dataUrl = await compressToDataURL(file, 1280, 720, 0.65);
+      // Firestore document limit is 1MB; reject if compressed result is too large
+      if (dataUrl.length > 400000) {
+        throw new Error('COMPRESSED_TOO_LARGE');
+      }
+      await updateDoc(doc(db, 'users', uid), { backgroundUrl: dataUrl });
     } finally {
       setUploading(false);
     }
@@ -113,7 +109,6 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
     if (!uid) return;
     setUploading(true);
     try {
-      try { await deleteObject(ref(storage, `avatars/${uid}/avatar.jpg`)); } catch {}
       await updateDoc(doc(db, 'users', uid), { avatarUrl: '' });
     } finally {
       setUploading(false);
@@ -124,7 +119,6 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
     if (!uid) return;
     setUploading(true);
     try {
-      try { await deleteObject(ref(storage, `backgrounds/${uid}/background.jpg`)); } catch {}
       await updateDoc(doc(db, 'users', uid), { backgroundUrl: '' });
     } finally {
       setUploading(false);
