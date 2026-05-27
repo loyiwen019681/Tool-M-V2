@@ -48,18 +48,30 @@ export default function Login() {
     setResetMessage({ text: '', type: 'success' });
 
     const trimmed = resetEmail.trim();
-    const email = trimmed.includes('@')
-      ? trimmed.toLowerCase()
-      : `${trimmed.toLowerCase().replace(/\s+/g, '.')}@tooling.local`;
-
-    if (email.endsWith('@tooling.local')) {
-      setResetMessage({ text: t('auth.resetContactAdmin'), type: 'error' });
-      setResetLoading(false);
-      return;
-    }
 
     try {
-      await sendPasswordResetEmail(auth, email);
+      // Use the API to resolve the correct Firebase Auth email from Firestore
+      const resp = await fetch('/api/find-user-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: trimmed }),
+      });
+      const result = resp.ok ? await resp.json() : { type: 'error' };
+
+      if (result.type === 'local') {
+        setResetMessage({ text: t('auth.resetContactAdmin'), type: 'error' });
+        return;
+      }
+
+      // Use the resolved Firebase Auth email, or fall back to the user's input
+      const authEmail = result.type === 'real' ? result.email : (trimmed.includes('@') ? trimmed.toLowerCase() : null);
+
+      if (!authEmail) {
+        setResetMessage({ text: t('auth.resetContactAdmin'), type: 'error' });
+        return;
+      }
+
+      await sendPasswordResetEmail(auth, authEmail);
       setResetMessage({ text: t('auth.resetLinkSent'), type: 'success' });
       setTimeout(() => {
         setShowResetModal(false);

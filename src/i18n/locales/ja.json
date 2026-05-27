@@ -54,7 +54,7 @@
     "resetUsernameEmail": "ユーザー名またはメール",
     "resetPlaceholder": "ユーザー名 または your@email.com",
     "sendResetLink": "リセットリンクを送信",
-    "resetLinkSent": "リセットリンクを送信しました！メールをご確認ください。",
+    "resetLinkSent": "リセットリンクを送信しました！受信トレイとスパムフォルダをご確認ください。",
     "resetFailed": "リセットメールの送信に失敗しました。再試行してください。",
     "resetUserNotFound": "このメールアドレスのアカウントが見つかりません。",
     "resetInvalidEmail": "有効なメールアドレスを入力してください。",

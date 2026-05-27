@@ -54,7 +54,7 @@
     "resetUsernameEmail": "Username or Email",
     "resetPlaceholder": "Username or your@email.com",
     "sendResetLink": "Send Reset Link",
-    "resetLinkSent": "Reset link sent! Please check your email.",
+    "resetLinkSent": "Reset link sent! Please check your inbox and spam folder.",
     "resetFailed": "Failed to send reset email. Please try again.",
     "resetUserNotFound": "No account found with this email address.",
     "resetInvalidEmail": "Please enter a valid email address.",
