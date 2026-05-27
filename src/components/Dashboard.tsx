@@ -72,6 +72,7 @@ export default function Dashboard({ user, role, selectedFacility, onBackToFacili
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+  const [avatarLightboxOpen, setAvatarLightboxOpen] = useState(false);
 
   const isAdmin = role === 'admin';
 
@@ -445,14 +446,19 @@ export default function Dashboard({ user, role, selectedFacility, onBackToFacili
               <span className="hidden lg:inline">{t('dashboard.searchLabel')}</span>
               <kbd className="hidden lg:inline text-[10px] border border-zinc-300 rounded px-1">Ctrl+K</kbd>
             </button>
-            <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-zinc-200 ring-2 ring-white shadow-sm overflow-hidden shrink-0">
+            <button
+              type="button"
+              onClick={() => setAvatarLightboxOpen(true)}
+              className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-zinc-200 ring-2 ring-white shadow-sm overflow-hidden shrink-0 cursor-pointer hover:ring-brand-primary transition-all"
+              title="View avatar"
+            >
               <img
                 src={profile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
                 alt="Avatar"
                 referrerPolicy="no-referrer"
                 className="h-full w-full object-cover"
               />
-            </div>
+            </button>
           </div>
         </header>
 
@@ -570,6 +576,41 @@ export default function Dashboard({ user, role, selectedFacility, onBackToFacili
           )}
         </AnimatePresence>
 
+        {/* Avatar lightbox */}
+        <AnimatePresence>
+          {avatarLightboxOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setAvatarLightboxOpen(false)}
+              className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            >
+              <motion.div
+                initial={{ scale: 0.7, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.7, opacity: 0 }}
+                transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+                onClick={e => e.stopPropagation()}
+                className="relative"
+              >
+                <img
+                  src={profile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
+                  alt="Avatar"
+                  referrerPolicy="no-referrer"
+                  className="h-64 w-64 md:h-80 md:w-80 rounded-full object-cover ring-4 ring-white shadow-2xl"
+                />
+                <button
+                  onClick={() => setAvatarLightboxOpen(false)}
+                  className="absolute -top-3 -right-3 h-8 w-8 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-zinc-100 transition-colors"
+                >
+                  <X className="h-4 w-4 text-zinc-700" />
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="p-3 md:p-8 pb-20 md:pb-8">
           <AnimatePresence mode="wait">
             <motion.div
@@ -578,7 +619,10 @@ export default function Dashboard({ user, role, selectedFacility, onBackToFacili
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.15 }}
-              className="rounded-2xl md:rounded-3xl bg-white p-3 md:p-10 card-shadow ring-1 ring-black/5 min-h-[calc(100vh-8rem)] md:min-h-[calc(100vh-10rem)]"
+              className={cn(
+                "rounded-2xl md:rounded-3xl p-3 md:p-10 card-shadow ring-1 ring-black/5 min-h-[calc(100vh-8rem)] md:min-h-[calc(100vh-10rem)]",
+                profile.backgroundUrl ? "bg-white/80 backdrop-blur-sm" : "bg-white"
+              )}
             >
               <ErrorBoundary>
               <Suspense fallback={
