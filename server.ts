@@ -62,8 +62,7 @@ async function startServer() {
       console.log("Decoded Token Email:", decodedToken.email);
       console.log("Decoded Token UID:", decodedToken.uid);
       
-      const ownerEmails = (process.env.OWNER_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
-      const isAdminByEmail = ownerEmails.includes((decodedToken.email || '').toLowerCase());
+      const isAdminByEmail = decodedToken.email === "leo03370690@gmail.com" || decodedToken.email === "leo.lo@tooling.local";
       
       if (isAdminByEmail) {
         (req as any).adminUser = decodedToken;
@@ -192,7 +191,7 @@ async function startServer() {
   });
 
   // API to set or self-claim user role
-  const OWNER_EMAILS = (process.env.OWNER_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+  const OWNER_EMAILS = ['leo03370690@gmail.com', 'leo.lo@tooling.local'];
   app.post("/api/set-role", async (req, res) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
