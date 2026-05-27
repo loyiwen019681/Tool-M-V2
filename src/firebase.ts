@@ -27,4 +27,3 @@ try {
 
 export const db = firestoreInstance;
 export const auth = getAuth(app);
-export { firebaseConfig };

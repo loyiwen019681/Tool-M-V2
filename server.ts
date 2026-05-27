@@ -62,7 +62,8 @@ async function startServer() {
       console.log("Decoded Token Email:", decodedToken.email);
       console.log("Decoded Token UID:", decodedToken.uid);
       
-      const isAdminByEmail = decodedToken.email === "leo03370690@gmail.com" || decodedToken.email === "leo.lo@tooling.local";
+      const ownerEmails = (process.env.OWNER_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+      const isAdminByEmail = ownerEmails.includes((decodedToken.email || '').toLowerCase());
       
       if (isAdminByEmail) {
         (req as any).adminUser = decodedToken;
@@ -97,7 +98,8 @@ async function startServer() {
         }
       } catch (fsError: any) {
         console.error("Firestore Read Error in verifyAdmin:", fsError.message);
-        return res.status(500).json({ error: `Firestore error: ${fsError.message}` });
+        console.error("Firestore Read Error in verifyAdmin:", fsError.message);
+        return res.status(500).json({ error: 'Internal server error' });
       }
       
       if (!userDocData || userDocData.role !== "admin") {
@@ -109,7 +111,7 @@ async function startServer() {
       next();
     } catch (error: any) {
       console.error("Auth Error:", error.message);
-      res.status(401).json({ error: `Invalid token: ${error.message}` });
+      res.status(401).json({ error: 'Invalid token' });
     }
   };
 
@@ -153,7 +155,7 @@ async function startServer() {
       res.json({ success: true, uid: userRecord.uid });
     } catch (error: any) {
       console.error("Create User Error:", error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
@@ -185,12 +187,12 @@ async function startServer() {
       res.json({ success: true });
     } catch (error: any) {
       console.error("Update User Error:", error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
   // API to set or self-claim user role
-  const OWNER_EMAILS = ['leo03370690@gmail.com', 'leo.lo@tooling.local'];
+  const OWNER_EMAILS = (process.env.OWNER_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
   app.post("/api/set-role", async (req, res) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -253,7 +255,7 @@ async function startServer() {
       }
     } catch (err: any) {
       console.error("set-role error:", err.message);
-      return res.status(500).json({ error: err.message });
+      return res.status(500).json({ error: 'Internal server error' });
     }
   });
 
@@ -289,7 +291,7 @@ async function startServer() {
       res.json({ success: true });
     } catch (error: any) {
       console.error("Delete User Error:", error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 

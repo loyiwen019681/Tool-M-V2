@@ -41,26 +41,9 @@ interface FirestoreErrorInfo {
 }
 
 function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
-  const errInfo: FirestoreErrorInfo = {
-    error: error instanceof Error ? error.message : String(error),
-    authInfo: {
-      userId: auth.currentUser?.uid,
-      email: auth.currentUser?.email,
-      emailVerified: auth.currentUser?.emailVerified,
-      isAnonymous: auth.currentUser?.isAnonymous,
-      tenantId: auth.currentUser?.tenantId,
-      providerInfo: auth.currentUser?.providerData.map(provider => ({
-        providerId: provider.providerId,
-        displayName: provider.displayName,
-        email: provider.email,
-        photoUrl: provider.photoURL
-      })) || []
-    },
-    operationType,
-    path
-  }
-  console.error('Firestore Error: ', JSON.stringify(errInfo));
-  throw new Error(JSON.stringify(errInfo));
+  // Log detail server-side only; never embed auth state or internals in the thrown message
+  console.error('Firestore Error:', { operationType, path, error });
+  throw new Error(`${operationType} failed`);
 }
 
 interface UserData {
@@ -415,7 +398,7 @@ export default function UserManagement() {
                     </div>
                   </div>
                   
-                  {user.username !== 'Leo.Lo' && user.username !== 'Owner' && (
+                  {user.role !== 'admin' && (
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       {editingUserId === user.id ? (
                         <>
@@ -525,7 +508,7 @@ export default function UserManagement() {
                         </td>
                       ))}
                       <td className="px-6 py-4 text-right">
-                        {user.username !== 'Leo.Lo' && user.username !== 'Owner' && (
+                        {user.role !== 'admin' && (
                           <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             {editingUserId === user.id ? (
                               <>

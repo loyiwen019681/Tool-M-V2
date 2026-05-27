@@ -38,7 +38,7 @@ service cloud.firestore {
     function isValidUser(data) {
       return checkStringLength(data.get('username', ''), 100) &&
              checkStringLength(data.get('email', ''), 100) &&
-             (data.get('role', '') in ['admin', 'user', '']);
+             (data.get('role', '') in ['admin', 'user']);
     }
 
     function isValidUserProfileUpdate() {

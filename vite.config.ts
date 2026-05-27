@@ -9,10 +9,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, '.', '');
+  // Only load VITE_ prefixed vars for the client bundle.
+  // Server-only secrets (GEMINI_API_KEY, FIREBASE_SERVICE_ACCOUNT, etc.) must NOT be included here.
+  loadEnv(mode, '.', '');
   return {
     plugins: [
-      react(), 
+      react(),
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
@@ -37,9 +39,6 @@ export default defineConfig(({ mode }) => {
         }
       })
     ],
-    define: {
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

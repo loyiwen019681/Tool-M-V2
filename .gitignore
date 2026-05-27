@@ -5,5 +5,6 @@ dist/
 .env.*.local
 *.log
 firebase-debug.log*
+firebase-applet-config.json
 
 .vercel
