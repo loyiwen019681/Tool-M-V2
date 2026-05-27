@@ -48,10 +48,17 @@
     "forgotPassword": "Forgot Password?",
     "signIn": "Sign In",
     "resetPassword": "Reset Password",
-    "resetDescription": "Enter your email to receive a reset link.",
+    "resetDescription": "Enter your Username or Email to receive a reset link.",
     "backToLogin": "Back to Login",
     "emailAddress": "Email Address",
+    "resetUsernameEmail": "Username or Email",
+    "resetPlaceholder": "Username or your@email.com",
     "sendResetLink": "Send Reset Link",
+    "resetLinkSent": "Reset link sent! Please check your inbox and spam folder.",
+    "resetFailed": "Failed to send reset email. Please try again.",
+    "resetUserNotFound": "No account found with this email address.",
+    "resetInvalidEmail": "Please enter a valid email address.",
+    "resetContactAdmin": "This account uses a username login. Please contact your admin to reset the password.",
     "authorizedOnly": "Authorized Personnel Only"
   },
   "crud": {
