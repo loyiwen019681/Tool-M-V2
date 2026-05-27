@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { auth } from '../firebase';
 import { updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
-import { KeyRound, ShieldCheck, AlertCircle, CheckCircle2, Loader2, UserCircle, ImageIcon, Upload, X, Trash2 } from 'lucide-react';
+import { KeyRound, ShieldCheck, AlertCircle, CheckCircle2, Circle, Loader2, UserCircle, ImageIcon, Upload, X, Trash2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ThemeSwitcher } from './ThemeSwitcher';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +20,15 @@ export default function Settings() {
 
   const [profileError, setProfileError] = useState<string | null>(null);
   const [profileSuccess, setProfileSuccess] = useState<string | null>(null);
+
+  const passwordRules = useMemo(() => ({
+    hasUpper: /[A-Z]/.test(newPassword),
+    hasLower: /[a-z]/.test(newPassword),
+    hasDigits: (newPassword.match(/\d/g) || []).length >= 6,
+    hasSpecial: /[^a-zA-Z0-9]/.test(newPassword),
+  }), [newPassword]);
+
+  const passwordValid = Object.values(passwordRules).every(Boolean);
 
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const bgInputRef = useRef<HTMLInputElement>(null);
@@ -76,8 +85,8 @@ export default function Settings() {
       return;
     }
 
-    if (newPassword.length < 6) {
-      setError(t('settings.passwordMinLength'));
+    if (!passwordValid) {
+      setError(t('settings.passwordTooWeak'));
       return;
     }
 
@@ -327,8 +336,28 @@ export default function Settings() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-500/10 transition-all"
-                placeholder={t('settings.min6chars')}
+                placeholder={t('settings.passwordPlaceholder')}
               />
+              {newPassword && (
+                <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1">
+                  {([
+                    { key: 'hasUpper', label: t('settings.passwordRule.upper') },
+                    { key: 'hasLower', label: t('settings.passwordRule.lower') },
+                    { key: 'hasDigits', label: t('settings.passwordRule.digits') },
+                    { key: 'hasSpecial', label: t('settings.passwordRule.special') },
+                  ] as { key: keyof typeof passwordRules; label: string }[]).map(({ key, label }) => {
+                    const met = passwordRules[key];
+                    return (
+                      <div key={key} className={`flex items-center gap-1.5 text-[10px] font-medium transition-colors ${met ? 'text-emerald-600' : 'text-zinc-400'}`}>
+                        {met
+                          ? <CheckCircle2 className="h-3 w-3 shrink-0" />
+                          : <Circle className="h-3 w-3 shrink-0" />}
+                        {label}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">

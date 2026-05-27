@@ -132,6 +132,14 @@
     "subtitle": "アカウントのパスワードとセキュリティを管理します",
     "passwordsMismatch": "新しいパスワードが一致しません",
     "passwordMinLength": "パスワードは6文字以上である必要があります",
+    "passwordTooWeak": "パスワードは大文字1字・小文字1字・数字6桁・特殊記号1字を含む必要があります",
+    "passwordPlaceholder": "大文字 + 小文字 + 数字6桁 + 特殊記号",
+    "passwordRule": {
+      "upper": "大文字1字",
+      "lower": "小文字1字",
+      "digits": "数字6桁",
+      "special": "特殊記号1字"
+    },
     "userNotFound": "ユーザーが見つかりません",
     "incorrectPassword": "現在のパスワードが間違っています",
     "requireRelogin": "パスワードを変更するには、一度ログアウトして再度ログインしてください",

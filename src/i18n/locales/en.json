@@ -132,6 +132,14 @@
     "subtitle": "Manage your account password and security",
     "passwordsMismatch": "New passwords do not match",
     "passwordMinLength": "Password must be at least 6 characters long",
+    "passwordTooWeak": "Password must contain at least 1 uppercase letter, 1 lowercase letter, 6 digits, and 1 special symbol",
+    "passwordPlaceholder": "1 upper + 1 lower + 6 digits + 1 special",
+    "passwordRule": {
+      "upper": "1 uppercase letter",
+      "lower": "1 lowercase letter",
+      "digits": "6 digits",
+      "special": "1 special symbol"
+    },
     "userNotFound": "User not found",
     "incorrectPassword": "Incorrect current password",
     "requireRelogin": "Please log out and log back in to change your password",
