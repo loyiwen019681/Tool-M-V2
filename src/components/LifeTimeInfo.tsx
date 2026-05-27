@@ -270,8 +270,11 @@ export default function LifeTimeInfo({ isAdmin, selectedFacility }: { isAdmin: b
 
   const filteredRecords = React.useMemo(() => {
     let result = records.filter(r => {
-      const matchSearch = (r.socketGroup || '').toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        (r.pogoPin1Pn || '').toLowerCase().includes(debouncedSearchTerm.toLowerCase());
+      const searchStr = [
+        r.socketGroup, r.facility, r.pogoPin1Pn, r.lifeTime, r.loadBoardGroup, r.remark,
+        String(r.pogoPinQty ?? '')
+      ].join(' ').toLowerCase();
+      const matchSearch = !debouncedSearchTerm || searchStr.includes(debouncedSearchTerm.toLowerCase());
       
       const matchSocketGroup = filterSocketGroups.length === 0 || filterSocketGroups.includes(String(r.socketGroup || ''));
       const matchPogoPin1Pn = filterPogoPin1Pns.length === 0 || filterPogoPin1Pns.includes(String(r.pogoPin1Pn || ''));

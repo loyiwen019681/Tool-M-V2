@@ -317,8 +317,14 @@ export default function SocketInfo({ isAdmin, selectedFacility }: { isAdmin: boo
 
   const filteredSockets = React.useMemo(() => {
     let result = sockets.filter(s => {
-      const matchSearch = (s.toolsId || '').toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        (s.project || '').toLowerCase().includes(debouncedSearchTerm.toLowerCase());
+      const searchStr = [
+        s.toolsId, s.facility, s.package, s.pinBall, s.packageSize, s.project, s.status,
+        s.socketGroupPin1, s.pogoPinPnPin1, s.socketPnPin1, s.usedFag, s.pogoPinPnPin2, s.pnPcb,
+        String(s.contactCountPin1 ?? ''), String(s.lifeCountPin1 ?? ''), String(s.contactLimitPin1 ?? ''),
+        String(s.contactCountPin2 ?? ''), String(s.lifeCountPin2 ?? ''), String(s.contactLimitPin2 ?? ''),
+        String(s.contactCountPcb ?? ''), String(s.lifeCountPcb ?? ''), String(s.contactLimitPcb ?? '')
+      ].join(' ').toLowerCase();
+      const matchSearch = !debouncedSearchTerm || searchStr.includes(debouncedSearchTerm.toLowerCase());
       
       const matchSocketGroup = filterSocketGroups.length === 0 || filterSocketGroups.includes(String(s.socketGroupPin1 || ''));
       const matchToolsId = filterToolsIds.length === 0 || filterToolsIds.includes(String(s.toolsId || ''));
