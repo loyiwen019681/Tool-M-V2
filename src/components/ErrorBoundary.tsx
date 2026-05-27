@@ -31,7 +31,7 @@ export default class ErrorBoundary extends React.Component<Props, State> {
         <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 text-center p-8">
           <AlertTriangle className="h-12 w-12 text-red-400" />
           <h2 className="text-lg font-bold text-zinc-800">{i18next.t('error.pageError')}</h2>
-          <p className="text-sm text-zinc-500 max-w-md">{i18next.t('error.unknownRetry')}</p>
+          <p className="text-sm text-zinc-500 max-w-md">{this.state.error?.message || i18next.t('error.unknownError')}</p>
           <button
             onClick={() => this.setState({ hasError: false, error: null })}
             className="mt-2 px-4 py-2 text-sm font-bold bg-zinc-900 text-white rounded-xl hover:bg-zinc-700 transition-colors"

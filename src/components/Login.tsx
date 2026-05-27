@@ -80,7 +80,13 @@ export default function Login() {
       }, 3000);
     } catch (err: any) {
       console.error(err);
-      setResetMessage({ text: t('auth.resetFailed'), type: 'error' });
+      if (err.code === 'auth/user-not-found') {
+        setResetMessage({ text: t('auth.resetUserNotFound'), type: 'error' });
+      } else if (err.code === 'auth/invalid-email') {
+        setResetMessage({ text: t('auth.resetInvalidEmail'), type: 'error' });
+      } else {
+        setResetMessage({ text: t('auth.resetFailed'), type: 'error' });
+      }
     } finally {
       setResetLoading(false);
     }

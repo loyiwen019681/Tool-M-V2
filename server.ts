@@ -97,8 +97,7 @@ async function startServer() {
         }
       } catch (fsError: any) {
         console.error("Firestore Read Error in verifyAdmin:", fsError.message);
-        console.error("Firestore Read Error in verifyAdmin:", fsError.message);
-        return res.status(500).json({ error: 'Internal server error' });
+        return res.status(500).json({ error: `Firestore error: ${fsError.message}` });
       }
       
       if (!userDocData || userDocData.role !== "admin") {
@@ -110,7 +109,7 @@ async function startServer() {
       next();
     } catch (error: any) {
       console.error("Auth Error:", error.message);
-      res.status(401).json({ error: 'Invalid token' });
+      res.status(401).json({ error: `Invalid token: ${error.message}` });
     }
   };
 
@@ -154,7 +153,7 @@ async function startServer() {
       res.json({ success: true, uid: userRecord.uid });
     } catch (error: any) {
       console.error("Create User Error:", error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: error.message });
     }
   });
 
@@ -186,7 +185,7 @@ async function startServer() {
       res.json({ success: true });
     } catch (error: any) {
       console.error("Update User Error:", error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: error.message });
     }
   });
 
@@ -254,7 +253,7 @@ async function startServer() {
       }
     } catch (err: any) {
       console.error("set-role error:", err.message);
-      return res.status(500).json({ error: 'Internal server error' });
+      return res.status(500).json({ error: err.message });
     }
   });
 
@@ -290,7 +289,7 @@ async function startServer() {
       res.json({ success: true });
     } catch (error: any) {
       console.error("Delete User Error:", error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: error.message });
     }
   });
 
