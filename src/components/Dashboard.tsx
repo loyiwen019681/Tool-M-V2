@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, Suspense, lazy, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useData } from '../contexts/DataContext';
+import { useUserProfile } from '../contexts/UserProfileContext';
 import ErrorBoundary from './ErrorBoundary';
 import LanguageSwitcher from './LanguageSwitcher';
 import { signOut } from 'firebase/auth';
@@ -63,6 +64,7 @@ type Tab = 'product' | 'socket' | 'change-kit' | 'pogo-pin' | 'life-time' | 'loa
 
 export default function Dashboard({ user, role, selectedFacility, onBackToFacility }: DashboardProps) {
   const { t } = useTranslation();
+  const { profile } = useUserProfile();
   const [activeTab, setActiveTab] = useState<Tab>('product');
   const [tabHistory, setTabHistory] = useState<Tab[]>([]);
   const [maintenanceInitialData, setMaintenanceInitialData] = useState<any>(null);
@@ -337,8 +339,12 @@ export default function Dashboard({ user, role, selectedFacility, onBackToFacili
 
         <div className="border-t p-4" style={{ borderColor: 'var(--sb-section-border)', backgroundColor: 'var(--sb-section-bg)' }}>
           <div className="mb-4 flex items-center gap-3 px-3 py-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl shadow-sm ring-1 ring-black/10" style={{ backgroundColor: 'var(--sb-hover)' }}>
-              <Users className="h-5 w-5" style={{ color: 'var(--sb-icon)' }} />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl shadow-sm ring-1 ring-black/10 overflow-hidden shrink-0" style={{ backgroundColor: 'var(--sb-hover)' }}>
+              {profile.avatarUrl ? (
+                <img src={profile.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+              ) : (
+                <Users className="h-5 w-5" style={{ color: 'var(--sb-icon)' }} />
+              )}
             </div>
             {isSidebarOpen && (
               <div className="flex flex-col">
@@ -368,7 +374,15 @@ export default function Dashboard({ user, role, selectedFacility, onBackToFacili
       </motion.aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto overflow-x-hidden relative w-full">
+      <main
+        className="flex-1 overflow-y-auto overflow-x-hidden relative w-full"
+        style={profile.backgroundUrl ? {
+          backgroundImage: `url(${profile.backgroundUrl})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
+        } : undefined}
+      >
         {/* Top Header */}
         <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-xl border-b border-zinc-200 h-14 md:h-20 px-3 md:px-8 flex items-center justify-between">
           <div className="flex items-center gap-2 md:gap-4">
@@ -433,7 +447,7 @@ export default function Dashboard({ user, role, selectedFacility, onBackToFacili
             </button>
             <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-zinc-200 ring-2 ring-white shadow-sm overflow-hidden shrink-0">
               <img
-                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
+                src={profile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
                 alt="Avatar"
                 referrerPolicy="no-referrer"
                 className="h-full w-full object-cover"
@@ -514,7 +528,7 @@ export default function Dashboard({ user, role, selectedFacility, onBackToFacili
                 {/* User info */}
                 <div className="flex items-center gap-3 px-5 py-3 border-b border-zinc-100 shrink-0">
                   <div className="h-9 w-9 rounded-full bg-zinc-200 ring-2 ring-white shadow-sm overflow-hidden shrink-0">
-                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} alt="Avatar" className="h-full w-full object-cover" />
+                    <img src={profile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} alt="Avatar" className="h-full w-full object-cover" />
                   </div>
                   <div>
                     <p className="text-sm font-bold text-zinc-900">{user.email?.split('@')[0]}</p>

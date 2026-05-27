@@ -41,6 +41,12 @@ service cloud.firestore {
              (data.get('role', '') in ['admin', 'user', '']);
     }
 
+    function isValidUserProfileUpdate() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['avatarUrl', 'backgroundUrl']) &&
+             checkStringLength(request.resource.data.get('avatarUrl', ''), 500) &&
+             checkStringLength(request.resource.data.get('backgroundUrl', ''), 500);
+    }
+
     function isValidProduct(data) {
       return checkStringLength(data.get('device', ''), 200) &&
              checkStringLength(data.get('facility', ''), 200) &&
@@ -167,9 +173,10 @@ service cloud.firestore {
     // ===============================================================
     match /users/{userId} {
       allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
-      // create/update/delete only via Admin SDK (server-side API routes) which bypasses rules
+      // create/delete only via Admin SDK (server-side API routes) which bypasses rules
       allow create: if isAdmin() && isValidUser(request.resource.data);
-      allow update: if isAdmin() && isValidUser(request.resource.data);
+      allow update: if (isOwner(userId) && isValidUserProfileUpdate()) ||
+                       (isAdmin() && isValidUser(request.resource.data));
       allow delete: if isAdmin();
     }
 
