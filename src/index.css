@@ -182,3 +182,7 @@
 .bg-transparent-mode .bg-zinc-200 {
   background-color: rgba(228, 228, 231, 0.60);
 }
+/* .surface-card uses @apply bg-white (inlines CSS, not a class) — must target directly */
+.bg-transparent-mode .surface-card {
+  background-color: rgba(255, 255, 255, 0.78);
+}
