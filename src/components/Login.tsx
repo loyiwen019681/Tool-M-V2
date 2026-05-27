@@ -46,9 +46,21 @@ export default function Login() {
     e.preventDefault();
     setResetLoading(true);
     setResetMessage({ text: '', type: 'success' });
+
+    const trimmed = resetEmail.trim();
+    const email = trimmed.includes('@')
+      ? trimmed.toLowerCase()
+      : `${trimmed.toLowerCase().replace(/\s+/g, '.')}@tooling.local`;
+
+    if (email.endsWith('@tooling.local')) {
+      setResetMessage({ text: t('auth.resetContactAdmin'), type: 'error' });
+      setResetLoading(false);
+      return;
+    }
+
     try {
-      await sendPasswordResetEmail(auth, resetEmail);
-      setResetMessage({ text: 'Reset link sent! Please check your email.', type: 'success' });
+      await sendPasswordResetEmail(auth, email);
+      setResetMessage({ text: t('auth.resetLinkSent'), type: 'success' });
       setTimeout(() => {
         setShowResetModal(false);
         setResetMessage({ text: '', type: 'success' });
@@ -56,7 +68,13 @@ export default function Login() {
       }, 3000);
     } catch (err: any) {
       console.error(err);
-      setResetMessage({ text: 'Failed to send reset email. Please check the address.', type: 'error' });
+      if (err.code === 'auth/user-not-found') {
+        setResetMessage({ text: t('auth.resetUserNotFound'), type: 'error' });
+      } else if (err.code === 'auth/invalid-email') {
+        setResetMessage({ text: t('auth.resetInvalidEmail'), type: 'error' });
+      } else {
+        setResetMessage({ text: t('auth.resetFailed'), type: 'error' });
+      }
     } finally {
       setResetLoading(false);
     }
@@ -220,16 +238,16 @@ export default function Login() {
                 </AnimatePresence>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 ml-1">{t('auth.emailAddress')}</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 ml-1">{t('auth.resetUsernameEmail')}</label>
                   <div className="relative">
                     <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
                     <input
-                      type="email"
+                      type="text"
                       required
                       value={resetEmail}
                       onChange={(e) => setResetEmail(e.target.value)}
                       className="w-full rounded-xl border border-zinc-200/80 bg-zinc-50/50 px-11 py-3.5 text-sm transition-all focus:border-brand-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-primary/10 hover:bg-zinc-50"
-                      placeholder="your@email.com"
+                      placeholder={t('auth.resetPlaceholder')}
                     />
                   </div>
                 </div>

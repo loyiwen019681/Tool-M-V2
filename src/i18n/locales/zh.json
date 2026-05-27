@@ -48,10 +48,17 @@
     "forgotPassword": "忘記密碼？",
     "signIn": "登入",
     "resetPassword": "重設密碼",
-    "resetDescription": "輸入您的 Email 以接收重設連結。",
+    "resetDescription": "請輸入您的帳號或 Email 以接收重設連結。",
     "backToLogin": "返回登入",
     "emailAddress": "Email 地址",
+    "resetUsernameEmail": "帳號或 Email",
+    "resetPlaceholder": "帳號或 your@email.com",
     "sendResetLink": "發送重設連結",
+    "resetLinkSent": "重設連結已送出！請檢查您的信箱。",
+    "resetFailed": "發送重設郵件失敗，請重試。",
+    "resetUserNotFound": "找不到此 Email 對應的帳號。",
+    "resetInvalidEmail": "請輸入有效的 Email 地址。",
+    "resetContactAdmin": "此帳號使用帳號名稱登入，請聯繫管理員重設密碼。",
     "authorizedOnly": "僅限授權人員使用"
   },
   "crud": {
