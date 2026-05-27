@@ -42,9 +42,12 @@ service cloud.firestore {
     }
 
     function isValidUserProfileUpdate() {
+      // Images stored as base64 dataURL directly in Firestore (no Storage needed)
+      // avatarUrl: ≤200×200 JPEG → ~20KB binary → ~27,000 base64 chars; cap at 100,000
+      // backgroundUrl: ≤1280×720 JPEG → ~100KB binary → ~133,000 base64 chars; cap at 400,000
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['avatarUrl', 'backgroundUrl']) &&
-             checkStringLength(request.resource.data.get('avatarUrl', ''), 500) &&
-             checkStringLength(request.resource.data.get('backgroundUrl', ''), 500);
+             checkStringLength(request.resource.data.get('avatarUrl', ''), 100000) &&
+             checkStringLength(request.resource.data.get('backgroundUrl', ''), 400000);
     }
 
     function isValidProduct(data) {
