@@ -636,6 +636,9 @@
     "uploadError": "画像のアップロードに失敗しました。再度お試しください。",
     "removeSuccess": "画像が削除されました",
     "fileTooLarge": "ファイルが大きすぎます。10MB未満の画像を使用してください。",
-    "invalidType": "画像ファイルを選択してください。"
+    "invalidType": "画像ファイルを選択してください。",
+    "backgroundFit": "背景表示方法",
+    "backgroundFitCover": "カバー",
+    "backgroundFitContain": "全体表示"
   }
 }

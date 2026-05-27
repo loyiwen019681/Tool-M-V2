@@ -6,6 +6,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 interface UserProfile {
   avatarUrl: string;
   backgroundUrl: string;
+  backgroundFit: 'cover' | 'contain';
 }
 
 interface UserProfileContextType {
@@ -14,15 +15,17 @@ interface UserProfileContextType {
   uploadBackground: (file: File) => Promise<void>;
   removeAvatar: () => Promise<void>;
   removeBackground: () => Promise<void>;
+  updateBackgroundFit: (fit: 'cover' | 'contain') => Promise<void>;
   uploading: boolean;
 }
 
 const UserProfileContext = createContext<UserProfileContextType>({
-  profile: { avatarUrl: '', backgroundUrl: '' },
+  profile: { avatarUrl: '', backgroundUrl: '', backgroundFit: 'cover' },
   uploadAvatar: async () => {},
   uploadBackground: async () => {},
   removeAvatar: async () => {},
   removeBackground: async () => {},
+  updateBackgroundFit: async () => {},
   uploading: false,
 });
 
@@ -53,14 +56,14 @@ async function compressToDataURL(file: File, maxWidth: number, maxHeight: number
 }
 
 export function UserProfileProvider({ children }: { children: React.ReactNode }) {
-  const [profile, setProfile] = useState<UserProfile>({ avatarUrl: '', backgroundUrl: '' });
+  const [profile, setProfile] = useState<UserProfile>({ avatarUrl: '', backgroundUrl: '', backgroundFit: 'cover' });
   const [uploading, setUploading] = useState(false);
   const [uid, setUid] = useState<string | null>(null);
 
   useEffect(() => {
     return onAuthStateChanged(auth, (user) => {
       setUid(user?.uid || null);
-      if (!user) setProfile({ avatarUrl: '', backgroundUrl: '' });
+      if (!user) setProfile({ avatarUrl: '', backgroundUrl: '', backgroundFit: 'cover' });
     });
   }, []);
 
@@ -72,6 +75,7 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
         setProfile({
           avatarUrl: data.avatarUrl || '',
           backgroundUrl: data.backgroundUrl || '',
+          backgroundFit: data.backgroundFit === 'contain' ? 'contain' : 'cover',
         });
       }
     });
@@ -125,8 +129,13 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
     }
   }, [uid]);
 
+  const updateBackgroundFit = useCallback(async (fit: 'cover' | 'contain') => {
+    if (!uid) return;
+    await updateDoc(doc(db, 'users', uid), { backgroundFit: fit });
+  }, [uid]);
+
   return (
-    <UserProfileContext.Provider value={{ profile, uploadAvatar, uploadBackground, removeAvatar, removeBackground, uploading }}>
+    <UserProfileContext.Provider value={{ profile, uploadAvatar, uploadBackground, removeAvatar, removeBackground, updateBackgroundFit, uploading }}>
       {children}
     </UserProfileContext.Provider>
   );
