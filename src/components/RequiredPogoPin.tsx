@@ -101,6 +101,8 @@ export default function RequiredPogoPin({ selectedFacility, isAdmin }: { selecte
           processPin(lt.pogoPin2Pn, lt.pogoPin2Qty);
           processPin(lt.pogoPin3Pn, lt.pogoPin3Qty);
           processPin(lt.pogoPin4Pn, lt.pogoPin4Qty);
+          processPin(lt.pogoPin5Pn, lt.pogoPin5Qty);
+          processPin(lt.pogoPin6Pn, lt.pogoPin6Qty);
         });
       };
       processSocket(product.socketName1);
@@ -270,11 +272,13 @@ export default function RequiredPogoPin({ selectedFacility, isAdmin }: { selecte
       const details: any[] = [];
       const seen = new Set<string>();
 
-      const relatedLts = lifeTimes.filter(lt => 
-        lt.pogoPin1Pn === pinName || 
-        lt.pogoPin2Pn === pinName || 
-        lt.pogoPin3Pn === pinName || 
-        lt.pogoPin4Pn === pinName
+      const relatedLts = lifeTimes.filter(lt =>
+        lt.pogoPin1Pn === pinName ||
+        lt.pogoPin2Pn === pinName ||
+        lt.pogoPin3Pn === pinName ||
+        lt.pogoPin4Pn === pinName ||
+        lt.pogoPin5Pn === pinName ||
+        lt.pogoPin6Pn === pinName
       );
 
       const insertionsUsingPin = products.filter(prod => {
@@ -307,6 +311,8 @@ export default function RequiredPogoPin({ selectedFacility, isAdmin }: { selecte
           else if (matchedLt.pogoPin2Pn === pinName) reqPinQty = matchedLt.pogoPin2Qty;
           else if (matchedLt.pogoPin3Pn === pinName) reqPinQty = matchedLt.pogoPin3Qty;
           else if (matchedLt.pogoPin4Pn === pinName) reqPinQty = matchedLt.pogoPin4Qty;
+          else if (matchedLt.pogoPin5Pn === pinName) reqPinQty = matchedLt.pogoPin5Qty;
+          else if (matchedLt.pogoPin6Pn === pinName) reqPinQty = matchedLt.pogoPin6Qty;
         }
 
         const key = `${device}-${insertion}-${site}-${nickName}`;
@@ -579,7 +585,7 @@ export default function RequiredPogoPin({ selectedFacility, isAdmin }: { selecte
         detailedData = Object.entries(summary).map(([pinName, data]) => {
           const details: any[] = [];
           const seen = new Set<string>();
-          const relatedLts = fLifeTimes.filter((lt: any) => lt.pogoPin1Pn === pinName || lt.pogoPin2Pn === pinName || lt.pogoPin3Pn === pinName || lt.pogoPin4Pn === pinName);
+          const relatedLts = fLifeTimes.filter((lt: any) => lt.pogoPin1Pn === pinName || lt.pogoPin2Pn === pinName || lt.pogoPin3Pn === pinName || lt.pogoPin4Pn === pinName || lt.pogoPin5Pn === pinName || lt.pogoPin6Pn === pinName);
           fProducts.filter((prod: any) => {
             const s1 = (prod.socketName1 || '').trim().toUpperCase();
             const s2 = (prod.socketName2 || '').trim().toUpperCase();
@@ -596,6 +602,8 @@ export default function RequiredPogoPin({ selectedFacility, isAdmin }: { selecte
               else if (matchedLt.pogoPin2Pn === pinName) reqPinQty = matchedLt.pogoPin2Qty;
               else if (matchedLt.pogoPin3Pn === pinName) reqPinQty = matchedLt.pogoPin3Qty;
               else if (matchedLt.pogoPin4Pn === pinName) reqPinQty = matchedLt.pogoPin4Qty;
+              else if (matchedLt.pogoPin5Pn === pinName) reqPinQty = matchedLt.pogoPin5Qty;
+              else if (matchedLt.pogoPin6Pn === pinName) reqPinQty = matchedLt.pogoPin6Qty;
             }
             const key = `${device}-${insertion}-${site}-${nickName}`;
             if (!seen.has(key)) { seen.add(key); details.push({ nickName, device, insertion, site, fcst, lifetime: lifetimeVal, reqPinQtyInOneSocket: reqPinQty }); }
@@ -732,13 +740,15 @@ export default function RequiredPogoPin({ selectedFacility, isAdmin }: { selecte
                   <th className="px-4 py-3 font-medium">{t('requiredPogoPin.pogoPin2Need')}</th>
                   <th className="px-4 py-3 font-medium">{t('requiredPogoPin.pogoPin3Need')}</th>
                   <th className="px-4 py-3 font-medium">{t('requiredPogoPin.pogoPin4Need')}</th>
+                  <th className="px-4 py-3 font-medium">{t('requiredPogoPin.pogoPin5Need')}</th>
+                  <th className="px-4 py-3 font-medium">{t('requiredPogoPin.pogoPin6Need')}</th>
                   {isAdmin && <th className="px-4 py-3 font-medium w-16"></th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100">
                 {rows.length === 0 ? (
                   <tr>
-                    <td colSpan={isAdmin ? 8 : 7} className="px-4 py-8 text-center text-zinc-500">
+                    <td colSpan={isAdmin ? 10 : 9} className="px-4 py-8 text-center text-zinc-500">
                       {isAdmin ? t('requiredPogoPin.noDataAdmin') : t('requiredPogoPin.noData')}
                     </td>
                   </tr>
@@ -762,7 +772,7 @@ export default function RequiredPogoPin({ selectedFacility, isAdmin }: { selecte
                       <td className="px-4 py-2">
                         <span className={cn("text-xs", row.remark ? "text-red-500 font-medium" : "text-zinc-400")}>{row.remark || '-'}</span>
                       </td>
-                      {[0, 1, 2, 3].map(index => {
+                      {[0, 1, 2, 3, 4, 5].map(index => {
                         const pin = row.pogoPins[index];
                         return (
                           <td key={index} className="px-4 py-2">

@@ -120,6 +120,16 @@ service cloud.firestore {
              checkStringLength(data.get('facility', ''), 200) &&
              checkStringLength(data.get('pogoPin1Pn', ''), 200) &&
              isValidNumberOrString(data.get('pogoPinQty', 0), 50) &&
+             checkStringLength(data.get('pogoPin2Pn', ''), 200) &&
+             isValidNumberOrString(data.get('pogoPin2Qty', 0), 50) &&
+             checkStringLength(data.get('pogoPin3Pn', ''), 200) &&
+             isValidNumberOrString(data.get('pogoPin3Qty', 0), 50) &&
+             checkStringLength(data.get('pogoPin4Pn', ''), 200) &&
+             isValidNumberOrString(data.get('pogoPin4Qty', 0), 50) &&
+             checkStringLength(data.get('pogoPin5Pn', ''), 200) &&
+             isValidNumberOrString(data.get('pogoPin5Qty', 0), 50) &&
+             checkStringLength(data.get('pogoPin6Pn', ''), 200) &&
+             isValidNumberOrString(data.get('pogoPin6Qty', 0), 50) &&
              checkStringLength(data.get('lifeTime', ''), 200) &&
              checkStringLength(data.get('loadBoardGroup', ''), 200) &&
              checkStringLength(data.get('remark', ''), 1000);
