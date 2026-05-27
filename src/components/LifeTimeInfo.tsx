@@ -23,7 +23,17 @@ interface LifeTime {
   facility: string;
   socketGroup: string;
   pogoPin1Pn: string;
-  pogoPinQty: number;
+  pogoPinQty: number | string;
+  pogoPin2Pn: string;
+  pogoPin2Qty: number | string;
+  pogoPin3Pn: string;
+  pogoPin3Qty: number | string;
+  pogoPin4Pn: string;
+  pogoPin4Qty: number | string;
+  pogoPin5Pn: string;
+  pogoPin5Qty: number | string;
+  pogoPin6Pn: string;
+  pogoPin6Qty: number | string;
   lifeTime: number | string;
   loadBoardGroup: string;
   remark: string;
@@ -90,9 +100,9 @@ const LifeTimeRow = React.memo(({
         <td key={col.key} className={cn("px-6 py-4 text-zinc-600 whitespace-nowrap", i === 0 && "sticky left-0 bg-white group-hover:bg-zinc-50/80 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] transition-colors")}>
           {isEditing ? (
             <input
-              type={col.key === 'pogoPinQty' || col.key === 'lifeTime' ? 'number' : 'text'}
+              type={['pogoPinQty','pogoPin2Qty','pogoPin3Qty','pogoPin4Qty','pogoPin5Qty','pogoPin6Qty','lifeTime'].includes(col.key) ? 'number' : 'text'}
               value={localData[col.key as keyof LifeTime] as any || ''}
-              onChange={(e) => setLocalData({ ...localData, [col.key]: col.key === 'pogoPinQty' || col.key === 'lifeTime' ? Number(e.target.value) : e.target.value })}
+              onChange={(e) => setLocalData({ ...localData, [col.key]: ['pogoPinQty','pogoPin2Qty','pogoPin3Qty','pogoPin4Qty','pogoPin5Qty','pogoPin6Qty','lifeTime'].includes(col.key) ? Number(e.target.value) : e.target.value })}
               className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs focus:ring-2 focus:ring-brand-primary/10 focus:border-brand-primary outline-none transition-all"
               autoFocus={col.key === 'facility'}
               onKeyDown={(e) => {
@@ -189,7 +199,7 @@ export default function LifeTimeInfo({ isAdmin, selectedFacility }: { isAdmin: b
 
   useEffect(() => { clearSelection(); }, [debouncedSearchTerm, filterSocketGroups, filterPogoPin1Pns, filterLoadBoardGroups, selectedFacility]);
   const [visibleColumns, setVisibleColumns] = usePersistentState<string[]>('lifeTimeInfo_visibleColumns', [
-    'facility', 'socketGroup', 'pogoPin1Pn', 'pogoPinQty', 'lifeTime', 'loadBoardGroup', 'remark'
+    'facility', 'socketGroup', 'pogoPin1Pn', 'pogoPinQty', 'pogoPin2Pn', 'pogoPin2Qty', 'pogoPin3Pn', 'pogoPin3Qty', 'pogoPin4Pn', 'pogoPin4Qty', 'pogoPin5Pn', 'pogoPin5Qty', 'pogoPin6Pn', 'pogoPin6Qty', 'lifeTime', 'loadBoardGroup', 'remark'
   ]);
   const [displayCount, setDisplayCount] = useState(100);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
@@ -271,8 +281,11 @@ export default function LifeTimeInfo({ isAdmin, selectedFacility }: { isAdmin: b
   const filteredRecords = React.useMemo(() => {
     let result = records.filter(r => {
       const searchStr = [
-        r.socketGroup, r.facility, r.pogoPin1Pn, r.lifeTime, r.loadBoardGroup, r.remark,
-        String(r.pogoPinQty ?? '')
+        r.socketGroup, r.facility, r.pogoPin1Pn, r.pogoPin2Pn, r.pogoPin3Pn,
+        r.pogoPin4Pn, r.pogoPin5Pn, r.pogoPin6Pn,
+        r.lifeTime, r.loadBoardGroup, r.remark,
+        String(r.pogoPinQty ?? ''), String(r.pogoPin2Qty ?? ''), String(r.pogoPin3Qty ?? ''),
+        String(r.pogoPin4Qty ?? ''), String(r.pogoPin5Qty ?? ''), String(r.pogoPin6Qty ?? '')
       ].join(' ').toLowerCase();
       const matchSearch = !debouncedSearchTerm || searchStr.includes(debouncedSearchTerm.toLowerCase());
       
@@ -301,6 +314,16 @@ export default function LifeTimeInfo({ isAdmin, selectedFacility }: { isAdmin: b
     { key: 'socketGroup', label: t('lifeTimeInfo.columns.socketGroup') },
     { key: 'pogoPin1Pn', label: t('lifeTimeInfo.columns.pogoPin1Pn') },
     { key: 'pogoPinQty', label: t('lifeTimeInfo.columns.pogoPinQty') },
+    { key: 'pogoPin2Pn', label: t('lifeTimeInfo.columns.pogoPin2Pn') },
+    { key: 'pogoPin2Qty', label: t('lifeTimeInfo.columns.pogoPin2Qty') },
+    { key: 'pogoPin3Pn', label: t('lifeTimeInfo.columns.pogoPin3Pn') },
+    { key: 'pogoPin3Qty', label: t('lifeTimeInfo.columns.pogoPin3Qty') },
+    { key: 'pogoPin4Pn', label: t('lifeTimeInfo.columns.pogoPin4Pn') },
+    { key: 'pogoPin4Qty', label: t('lifeTimeInfo.columns.pogoPin4Qty') },
+    { key: 'pogoPin5Pn', label: t('lifeTimeInfo.columns.pogoPin5Pn') },
+    { key: 'pogoPin5Qty', label: t('lifeTimeInfo.columns.pogoPin5Qty') },
+    { key: 'pogoPin6Pn', label: t('lifeTimeInfo.columns.pogoPin6Pn') },
+    { key: 'pogoPin6Qty', label: t('lifeTimeInfo.columns.pogoPin6Qty') },
     { key: 'lifeTime', label: t('lifeTimeInfo.columns.lifeTime') },
     { key: 'loadBoardGroup', label: t('lifeTimeInfo.columns.loadBoardGroup') },
     { key: 'remark', label: t('lifeTimeInfo.columns.remark') },
@@ -441,6 +464,16 @@ export default function LifeTimeInfo({ isAdmin, selectedFacility }: { isAdmin: b
                           { label: 'Life Time', value: String(record.lifeTime ?? '') },
                           { label: 'Pin1 PN', value: record.pogoPin1Pn },
                           { label: 'Pin1 Qty', value: String(record.pogoPinQty ?? '') },
+                          { label: 'Pin2 PN', value: record.pogoPin2Pn },
+                          { label: 'Pin2 Qty', value: String(record.pogoPin2Qty ?? '') },
+                          { label: 'Pin3 PN', value: record.pogoPin3Pn },
+                          { label: 'Pin3 Qty', value: String(record.pogoPin3Qty ?? '') },
+                          { label: 'Pin4 PN', value: record.pogoPin4Pn },
+                          { label: 'Pin4 Qty', value: String(record.pogoPin4Qty ?? '') },
+                          { label: 'Pin5 PN', value: record.pogoPin5Pn },
+                          { label: 'Pin5 Qty', value: String(record.pogoPin5Qty ?? '') },
+                          { label: 'Pin6 PN', value: record.pogoPin6Pn },
+                          { label: 'Pin6 Qty', value: String(record.pogoPin6Qty ?? '') },
                           { label: 'Remark', value: record.remark },
                         ].filter(f => f.value && f.value !== 'undefined').map(f => (
                           <div key={f.label}>
