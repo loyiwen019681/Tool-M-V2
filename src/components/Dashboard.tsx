@@ -621,7 +621,7 @@ export default function Dashboard({ user, role, selectedFacility, onBackToFacili
               transition={{ duration: 0.15 }}
               className={cn(
                 "rounded-2xl md:rounded-3xl p-3 md:p-10 card-shadow ring-1 ring-black/5 min-h-[calc(100vh-8rem)] md:min-h-[calc(100vh-10rem)]",
-                profile.backgroundUrl ? "bg-white/80 backdrop-blur-sm" : "bg-white"
+                profile.backgroundUrl ? "bg-white/80 backdrop-blur-sm bg-transparent-mode" : "bg-white"
               )}
             >
               <ErrorBoundary>
