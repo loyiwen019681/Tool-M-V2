@@ -132,6 +132,14 @@
     "subtitle": "管理您的帳號密碼與安全性",
     "passwordsMismatch": "兩次輸入的新密碼不相符",
     "passwordMinLength": "密碼長度至少需 6 個字元",
+    "passwordTooWeak": "密碼必須包含至少 1 個大寫英文、1 個小寫英文、6 碼數字及 1 個特殊符號",
+    "passwordPlaceholder": "大寫 + 小寫 + 6 碼數字 + 特殊符號",
+    "passwordRule": {
+      "upper": "1 個大寫英文",
+      "lower": "1 個小寫英文",
+      "digits": "6 碼數字",
+      "special": "1 個特殊符號"
+    },
     "userNotFound": "找不到使用者",
     "incorrectPassword": "目前的密碼錯誤",
     "requireRelogin": "請登出再重新登入以更改密碼",
