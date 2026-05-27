@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { DataProvider } from './contexts/DataContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { ToastProvider } from './contexts/ToastContext';
+import { UserProfileProvider } from './contexts/UserProfileContext';
 import OfflineBanner from './components/OfflineBanner';
 import ToastContainer from './components/ui/ToastContainer';
 
@@ -113,6 +114,7 @@ export default function App() {
   return (
     <ToastProvider>
     <ThemeProvider>
+    <UserProfileProvider>
       <div className="min-h-screen bg-bg-canvas">
         <OfflineBanner />
         <AnimatePresence>
@@ -180,6 +182,7 @@ export default function App() {
           </Routes>
         </Router>
       </div>
+    </UserProfileProvider>
     </ThemeProvider>
     </ToastProvider>
   );

@@ -595,5 +595,21 @@
     "copy": "Duplicate row",
     "exportAll": "Export All Facilities",
     "lastUpdated": "Last updated"
+  },
+  "profile": {
+    "title": "Profile Customization",
+    "subtitle": "Personalize your avatar and background image",
+    "avatar": "Avatar",
+    "avatarDesc": "Upload a custom profile picture (auto-resized to 256×256)",
+    "background": "Background Image",
+    "backgroundDesc": "Upload a custom background for your dashboard",
+    "upload": "Upload Image",
+    "remove": "Remove",
+    "uploading": "Uploading...",
+    "uploadSuccess": "Image uploaded successfully",
+    "uploadError": "Failed to upload image. Please try again.",
+    "removeSuccess": "Image removed",
+    "fileTooLarge": "File is too large. Please use an image under 10MB.",
+    "invalidType": "Please select an image file."
   }
 }

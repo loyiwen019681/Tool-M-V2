@@ -594,5 +594,21 @@
     "importError": "匯入失敗，請確認檔案格式。",
     "copy": "複製此列",
     "exportAll": "匯出所有廠別"
+  },
+  "profile": {
+    "title": "個人化設定",
+    "subtitle": "自訂您的大頭照與背景圖片",
+    "avatar": "大頭照",
+    "avatarDesc": "上傳自訂頭像（自動縮放至 256×256）",
+    "background": "背景圖片",
+    "backgroundDesc": "上傳儀表板的自訂背景圖片",
+    "upload": "上傳圖片",
+    "remove": "移除",
+    "uploading": "上傳中...",
+    "uploadSuccess": "圖片上傳成功",
+    "uploadError": "圖片上傳失敗，請重試。",
+    "removeSuccess": "圖片已移除",
+    "fileTooLarge": "檔案過大，請使用 10MB 以下的圖片。",
+    "invalidType": "請選擇圖片檔案。"
   }
 }
