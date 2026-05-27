@@ -289,8 +289,10 @@ export default function ChangeKitInfo({ isAdmin, selectedFacility }: { isAdmin: 
 
   const filteredKits = React.useMemo(() => {
     let result = kits.filter(k => {
-      const matchSearch = (k.toolsId || '').toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        (k.kind || '').toLowerCase().includes(debouncedSearchTerm.toLowerCase());
+      const searchStr = [
+        k.toolsId, k.facility, k.kind, k.packageSize, k.changeKitGroup, k.status, k.idleTime
+      ].join(' ').toLowerCase();
+      const matchSearch = !debouncedSearchTerm || searchStr.includes(debouncedSearchTerm.toLowerCase());
       
       const matchToolsId = filterToolsIds.length === 0 || filterToolsIds.includes(String(k.toolsId || ''));
       const matchChangeKitGroup = filterChangeKitGroups.length === 0 || filterChangeKitGroups.includes(String(k.changeKitGroup || ''));

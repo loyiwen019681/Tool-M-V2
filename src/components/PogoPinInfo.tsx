@@ -357,7 +357,8 @@ export default function PogoPinInfo({ isAdmin, selectedFacility }: { isAdmin: bo
 
   const filteredPins = React.useMemo(() => {
     let result = pins.filter(p => {
-      const matchSearch = (p.pinPn || '').toLowerCase().includes(debouncedSearchTerm.toLowerCase());
+      const searchStr = [p.pinPn, p.facility, String(p.qty ?? '')].join(' ').toLowerCase();
+      const matchSearch = !debouncedSearchTerm || searchStr.includes(debouncedSearchTerm.toLowerCase());
       const matchPinPn = filterPinPns.length === 0 || filterPinPns.includes(String(p.pinPn || ''));
       return matchSearch && matchPinPn;
     });

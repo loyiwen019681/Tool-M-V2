@@ -314,9 +314,11 @@ export default function LoadBoardInfo({
 
   const filteredLoadBoards = React.useMemo(() => {
     let result = loadBoards.filter(lb => {
-      const matchSearch = (lb.projectName || '').toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        (lb.lbName || '').toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        (lb.lbGroup || '').toLowerCase().includes(debouncedSearchTerm.toLowerCase());
+      const searchStr = [
+        lb.projectName, lb.lbName, lb.lbGroup, lb.location, lb.insertion,
+        lb.remark, lb.sendBackDate, lb.targetReturnDate, String(lb.availableQty ?? '')
+      ].join(' ').toLowerCase();
+      const matchSearch = !debouncedSearchTerm || searchStr.includes(debouncedSearchTerm.toLowerCase());
       
       const matchProjectName = filterProjectNames.length === 0 || filterProjectNames.includes(String(lb.projectName || ''));
       const matchLBName = filterLBNames.length === 0 || filterLBNames.includes(String(lb.lbName || ''));
