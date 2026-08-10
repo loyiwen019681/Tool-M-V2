@@ -203,8 +203,8 @@ export default function UserManagement() {
 
   const filteredUsers = React.useMemo(() => {
     return users.filter(u => {
-      const matchSearch = (u.username || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (u.email || '').toLowerCase().includes(searchTerm.toLowerCase());
+      const searchStr = [u.username, u.email, u.role, u.createdAt].join(' ').toLowerCase();
+      const matchSearch = !searchTerm || searchStr.includes(searchTerm.toLowerCase());
       const matchRole = filterRoles.length === 0 || filterRoles.includes(String(u.role || ''));
       return matchSearch && matchRole;
     });

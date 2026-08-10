@@ -134,10 +134,10 @@ export default function SparePartTracking({ selectedFacility, isAdmin }: SparePa
 
   const filteredParts = useMemo(() => {
     return categoryParts.filter(p => {
-      const matchSearch = !searchTerm ||
-        p.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.partsNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (p.remark || '').toLowerCase().includes(searchTerm.toLowerCase());
+      const searchStr = [
+        p.facility, p.category, p.productName, p.partsNo, p.qty, p.status, p.eta, p.remark
+      ].join(' ').toLowerCase();
+      const matchSearch = !searchTerm || searchStr.includes(searchTerm.toLowerCase());
       const matchStatus = filterStatus.length === 0 || filterStatus.includes(p.status);
       return matchSearch && matchStatus;
     });
@@ -407,10 +407,10 @@ export default function SparePartTracking({ selectedFacility, isAdmin }: SparePa
     allFacilities.forEach(facility => {
       const parts = allParts.filter(p => {
         if ((p.facility || '') !== facility) return false;
-        const matchSearch = !searchTerm ||
-          p.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.partsNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (p.remark || '').toLowerCase().includes(searchTerm.toLowerCase());
+        const searchStr = [
+          p.facility, p.category, p.productName, p.partsNo, p.qty, p.status, p.eta, p.remark
+        ].join(' ').toLowerCase();
+        const matchSearch = !searchTerm || searchStr.includes(searchTerm.toLowerCase());
         const matchStatus = filterStatus.length === 0 || filterStatus.includes(p.status);
         return matchSearch && matchStatus;
       });

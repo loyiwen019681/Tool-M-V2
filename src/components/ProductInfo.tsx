@@ -323,7 +323,7 @@ export default function ProductInfo({ isAdmin, selectedFacility, onNavigate }: {
         p.device, p.facility, p.projectName, p.nickname, p.tester, p.handler,
         p.temperature, p.insertion, p.siteNumber, p.ballCountDevice,
         p.changeKitGroup, p.kitName1, p.kitName2, p.kitName3, p.kitName4,
-        p.lbGroup, p.socketName1, p.socketName2
+        p.kitName5, p.kitName6, p.lbGroup, p.socketName1, p.socketName2
       ].join(' ').toLowerCase();
       const matchSearch = !debouncedSearchTerm || searchStr.includes(debouncedSearchTerm.toLowerCase());
       
