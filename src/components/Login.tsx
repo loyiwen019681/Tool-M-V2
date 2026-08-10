@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import { cn } from '../lib/utils';
-import { LogIn, Loader2, ShieldCheck, Lock, User, Mail, ArrowLeft } from 'lucide-react';
+import { LogIn, Loader2, ShieldCheck, Lock, User, Mail, ArrowLeft, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -50,43 +50,33 @@ export default function Login() {
     const trimmed = resetEmail.trim();
 
     try {
-      // Use the API to resolve the correct Firebase Auth email from Firestore
-      const resp = await fetch('/api/find-user-email', {
+      // The server looks up the address and asks Firebase to send the mail.
+      // It answers the same way whether or not the account exists, so the
+      // response deliberately carries no information to branch on.
+      const resp = await fetch('/api/request-password-reset', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ input: trimmed }),
       });
-      const result = resp.ok ? await resp.json() : { type: 'error' };
 
-      if (result.type === 'local') {
-        setResetMessage({ text: t('auth.resetContactAdmin'), type: 'error' });
+      if (resp.status === 429) {
+        setResetMessage({ text: t('auth.resetTooMany'), type: 'error' });
+        return;
+      }
+      if (!resp.ok) {
+        setResetMessage({ text: t('auth.resetFailed'), type: 'error' });
         return;
       }
 
-      // Use the resolved Firebase Auth email, or fall back to the user's input
-      const authEmail = result.type === 'real' ? result.email : (trimmed.includes('@') ? trimmed.toLowerCase() : null);
-
-      if (!authEmail) {
-        setResetMessage({ text: t('auth.resetContactAdmin'), type: 'error' });
-        return;
-      }
-
-      await sendPasswordResetEmail(auth, authEmail);
       setResetMessage({ text: t('auth.resetLinkSent'), type: 'success' });
       setTimeout(() => {
         setShowResetModal(false);
         setResetMessage({ text: '', type: 'success' });
         setResetEmail('');
-      }, 3000);
+      }, 4000);
     } catch (err: any) {
       console.error(err);
-      if (err.code === 'auth/user-not-found') {
-        setResetMessage({ text: t('auth.resetUserNotFound'), type: 'error' });
-      } else if (err.code === 'auth/invalid-email') {
-        setResetMessage({ text: t('auth.resetInvalidEmail'), type: 'error' });
-      } else {
-        setResetMessage({ text: t('auth.resetFailed'), type: 'error' });
-      }
+      setResetMessage({ text: t('auth.resetFailed'), type: 'error' });
     } finally {
       setResetLoading(false);
     }
@@ -262,6 +252,15 @@ export default function Login() {
                       placeholder={t('auth.resetPlaceholder')}
                     />
                   </div>
+                </div>
+
+                {/* Shown unconditionally: guidance that depends on the account
+                    would reveal whether it exists. */}
+                <div className="flex gap-2.5 rounded-xl bg-zinc-50 px-4 py-3 ring-1 ring-zinc-100">
+                  <Info className="h-3.5 w-3.5 shrink-0 translate-y-0.5 text-zinc-400" />
+                  <p className="text-[11px] leading-relaxed text-zinc-500">
+                    {t('auth.resetInternalHint')}
+                  </p>
                 </div>
 
                 <motion.button

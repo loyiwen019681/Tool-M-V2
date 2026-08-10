@@ -54,12 +54,11 @@
     "resetUsernameEmail": "Username or Email",
     "resetPlaceholder": "Username or your@email.com",
     "sendResetLink": "Send Reset Link",
-    "resetLinkSent": "Reset link sent! Please check your inbox and spam folder.",
+    "resetLinkSent": "If an account exists, a reset link has been sent. Check your inbox and spam folder.",
     "resetFailed": "Failed to send reset email. Please try again.",
-    "resetUserNotFound": "No account found with this email address.",
-    "resetInvalidEmail": "Please enter a valid email address.",
-    "resetContactAdmin": "This account uses a username login. Please contact your admin to reset the password.",
-    "authorizedOnly": "Authorized Personnel Only"
+    "authorizedOnly": "Authorized Personnel Only",
+    "resetTooMany": "Too many attempts. Please try again later.",
+    "resetInternalHint": "Internal accounts created with a username (not an email) cannot be reset here — please contact an administrator."
   },
   "crud": {
     "addError": "Failed to add, please try again later.",

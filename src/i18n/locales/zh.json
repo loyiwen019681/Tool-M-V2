@@ -54,12 +54,11 @@
     "resetUsernameEmail": "帳號或 Email",
     "resetPlaceholder": "帳號或 your@email.com",
     "sendResetLink": "發送重設連結",
-    "resetLinkSent": "重設連結已送出！請檢查收件匣及垃圾郵件資料夾。",
+    "resetLinkSent": "若此帳號存在，重設連結已寄出。請檢查收件匣及垃圾郵件資料夾。",
     "resetFailed": "發送重設郵件失敗，請重試。",
-    "resetUserNotFound": "找不到此 Email 對應的帳號。",
-    "resetInvalidEmail": "請輸入有效的 Email 地址。",
-    "resetContactAdmin": "此帳號使用帳號名稱登入，請聯繫管理員重設密碼。",
-    "authorizedOnly": "僅限授權人員使用"
+    "authorizedOnly": "僅限授權人員使用",
+    "resetTooMany": "嘗試次數過多，請稍後再試。",
+    "resetInternalHint": "以帳號名稱（非 Email）建立的內部帳號無法自行重設密碼，請聯繫管理員。"
   },
   "crud": {
     "addError": "新增失敗，請稍後再試。",

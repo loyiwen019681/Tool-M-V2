@@ -54,12 +54,11 @@
     "resetUsernameEmail": "ユーザー名またはメール",
     "resetPlaceholder": "ユーザー名 または your@email.com",
     "sendResetLink": "リセットリンクを送信",
-    "resetLinkSent": "リセットリンクを送信しました！受信トレイとスパムフォルダをご確認ください。",
+    "resetLinkSent": "アカウントが存在する場合、リセットリンクを送信しました。受信トレイと迷惑メールフォルダをご確認ください。",
     "resetFailed": "リセットメールの送信に失敗しました。再試行してください。",
-    "resetUserNotFound": "このメールアドレスのアカウントが見つかりません。",
-    "resetInvalidEmail": "有効なメールアドレスを入力してください。",
-    "resetContactAdmin": "このアカウントはユーザー名でログインします。管理者にパスワードリセットを依頼してください。",
-    "authorizedOnly": "許可された担当者のみ"
+    "authorizedOnly": "許可された担当者のみ",
+    "resetTooMany": "試行回数が多すぎます。しばらくしてからお試しください。",
+    "resetInternalHint": "ユーザー名（メールアドレス以外）で作成された内部アカウントはここでリセットできません。管理者にお問い合わせください。"
   },
   "crud": {
     "addError": "追加に失敗しました。後でもう一度お試しください。",
